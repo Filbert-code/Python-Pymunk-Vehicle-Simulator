@@ -1,20 +1,24 @@
 import pygame as pg
 import sys
+from images.Hexagon import Hexagon
+import constants
+from random import randrange
+from random import choice
 
 pg.init()
 
-size = width, height = 800, 600
 speed = [2, 2]
-black = 0, 0, 0
-BLUE = 0, 150, 0
-BACKGROUND_COLOR = 155, 155, 155
 
-screen = pg.display.set_mode(size)
+screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
 clock = pg.time.Clock()
-# ballrect = ball.get_rect()
+sprites = pg.sprite.Group()
 
-ball_surf = pg.Surface((100, 100))
-ball_rect = ball_surf.get_rect()
+# spawn 4 hexagons
+for i in range(4):
+    # random spawn location and speed
+    sprites.add(Hexagon(randrange(50, 649), randrange(50, 449), choice([-4, 4]), choice([-4, 4])))
+
+
 
 while 1:
     for event in pg.event.get():
@@ -22,15 +26,24 @@ while 1:
             pg.quit()
             sys.exit()
 
-    ball_rect = ball_rect.move(speed)
-    if ball_rect.left < 0 or ball_rect.right > width:
-        speed[0] = -speed[0]
-    if ball_rect.top < 0 or ball_rect.bottom > height:
-        speed[1] = -speed[1]
+    sprites.update()
 
-    screen.fill(BACKGROUND_COLOR)
+    # iteratoring through the sprites group
+    sprite_group = pg.sprite.Group.sprites(sprites)
+    sprite_group_len = len(sprite_group)
+    for s1 in range(sprite_group_len):
+        for s2 in range(s1, sprite_group_len):
+            if pg.sprite.collide_mask(sprite_group[s1], sprite_group[s2]):
+                sprite_group[s1].velocity[0] *= -1
+                sprite_group[s1].velocity[1] *= -1
+                sprite_group[s2].velocity[0] *= -1
+                sprite_group[s2].velocity[1] *= -1
 
-    screen.blit(ball_surf, ball_rect)
+
+    screen.fill(constants.BACKGROUND_COLOR)
+    sprites.draw(screen)
+
+    # screen.blit(ball_surf, ball_rect)
 
     pg.display.flip()
     clock.tick(60)  # limiting frames per second to 60
