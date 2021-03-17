@@ -39,7 +39,8 @@ class PhysicsSim:
         self._polys = []
         self._wheels = []
 
-        self._create_pinjoint()
+        # self._create_pinjoint()
+        self._create_car()
 
         # Execution control
         self._running = True
@@ -168,14 +169,15 @@ class PhysicsSim:
         body = pm.Body(mass, inertia)
 
         # connect the vertices to the body
-        poly = pm.Poly(body, vs, radius=radius)
+        shape = pm.Poly(body, vs, radius=radius)
         # position to print onto screen
         body.position = x_pos, y_pos
-        poly.elasticity = 0.9
-        poly.friction = 0.95
+        shape.elasticity = 0.9
+        shape.friction = 0.95
 
-        self._space.add(body, poly)
-        self._polys.append(poly)
+        self._space.add(body, shape)
+        self._polys.append(shape)
+        return body, shape
 
     def _create_wheel(self, x_pos, y_pos):
         """
@@ -202,7 +204,19 @@ class PhysicsSim:
         self._space.add(c)
 
     def _create_car(self):
-
+        car_width = 200
+        car_height = 100
+        car_body, shape = self._create_poly(constants.WIDTH/2, constants.HEIGHT/2, car_width, car_height)
+        back_wheel, shape = self._create_wheel(constants.WIDTH/2 - 75, constants.HEIGHT/2 + 120)
+        front_wheel, shape = self._create_wheel(constants.WIDTH/2 + 75, constants.HEIGHT/2 + 120)
+        car_back_wheel_constraint = pm.constraints.PinJoint(car_body, back_wheel, (-60, 45), (0, 0))
+        cb_support = pm.constraints.PinJoint(car_body, back_wheel, (-80, 45), (0, 0))
+        car_front_wheel_constraint = pm.constraints.PinJoint(car_body, front_wheel, (60, 45), (0, 0))
+        cf_support = pm.constraints.PinJoint(car_body, front_wheel, (80, 45), (0, 0))
+        self._space.add(car_back_wheel_constraint)
+        self._space.add(cb_support)
+        self._space.add(car_front_wheel_constraint)
+        self._space.add(cf_support)
 
 
 if __name__ == "__main__":
