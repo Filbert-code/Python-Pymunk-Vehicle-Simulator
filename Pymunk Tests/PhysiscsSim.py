@@ -39,6 +39,8 @@ class PhysicsSim:
         self._polys = []
         self._wheels = []
 
+        self._create_pinjoint()
+
         # Execution control
         self._running = True
 
@@ -155,9 +157,8 @@ class PhysicsSim:
         for line in pg_lines:
             self._static_barriers.append(line)
 
-    def _create_poly(self, xpos, ypos):
+    def _create_poly(self, x_pos, y_pos, w, h):
         # create vertices
-        w, h = 10.0, 10.0
         vs = [(-w/2, -h/2), (w/2, -h/2), (w/2, h/2), (-w/2, h/2)]
         mass = 10.0
         radius = 2.0
@@ -169,7 +170,7 @@ class PhysicsSim:
         # connect the vertices to the body
         poly = pm.Poly(body, vs, radius=radius)
         # position to print onto screen
-        body.position = xpos, ypos
+        body.position = x_pos, y_pos
         poly.elasticity = 0.9
         poly.friction = 0.95
 
@@ -192,6 +193,16 @@ class PhysicsSim:
         shape.friction = 0.9
         self._space.add(body, shape)
         self._wheels.append(shape)
+        return body, shape
+
+    def _create_pinjoint(self):
+        body1, shape1 = self._create_wheel(constants.WIDTH/2, constants.HEIGHT/2)
+        body2, shape2 = self._create_wheel(constants.WIDTH/2+100, constants.HEIGHT/2+50)
+        c = pm.constraints.PinJoint(body1, body2, (0, 0), (0, 0))
+        self._space.add(c)
+
+    def _create_car(self):
+
 
 
 if __name__ == "__main__":
