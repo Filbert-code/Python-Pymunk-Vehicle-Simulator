@@ -38,6 +38,7 @@ class PhysicsSim:
 
         self._polys = []
         self._wheels = []
+        self._car_wheels = []
 
         # self._create_pinjoint()
         self._create_car()
@@ -100,7 +101,11 @@ class PhysicsSim:
             # process right-mouse click events
             elif event.type == pg.MOUSEBUTTONDOWN and pg.mouse.get_pressed(3)[2]:
                 m_pos = pg.mouse.get_pos()
-                self._create_poly(m_pos[0], m_pos[1])
+                self._create_poly(m_pos[0], m_pos[1], 10, 10)
+            elif event.type == pg.KEYDOWN and event.key == pg.K_d:
+                self._car_wheels[0].apply_force_at_world_point((100000, 0), (0, 0))
+            elif event.type == pg.KEYDOWN and event.key == pg.K_a:
+                self._car_wheels[0].apply_force_at_world_point((-100000, 0), (0, 0))
 
         # rapid fire
         # if pg.mouse.get_pressed(3)[0]:
@@ -161,7 +166,7 @@ class PhysicsSim:
     def _create_poly(self, x_pos, y_pos, w, h):
         # create vertices
         vs = [(-w/2, -h/2), (w/2, -h/2), (w/2, h/2), (-w/2, h/2)]
-        mass = 10.0
+        mass = 50.0
         radius = 2.0
         # calculate inertia
         inertia = pm.moment_for_poly(mass, vs, (0, 0), radius=radius)
@@ -189,7 +194,7 @@ class PhysicsSim:
         inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
         body = pymunk.Body(mass, inertia, pm.Body.DYNAMIC)
         body.position = x_pos, y_pos
-        body.apply_force_at_local_point((-100000, 0), (0, 0))
+        # body.apply_force_at_local_point((100000, 0), (0, 0))
         shape = pymunk.Circle(body, radius, (0, 0))
         shape.elasticity = 0.5
         shape.friction = 0.9
@@ -217,6 +222,7 @@ class PhysicsSim:
         self._space.add(cb_support)
         self._space.add(car_front_wheel_constraint)
         self._space.add(cf_support)
+        self._car_wheels = back_wheel, front_wheel
 
 
 if __name__ == "__main__":
