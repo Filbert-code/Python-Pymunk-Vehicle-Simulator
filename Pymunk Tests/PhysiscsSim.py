@@ -20,7 +20,7 @@ class PhysicsSim:
 
         # pymunk space
         self._space = pm.Space()
-        self._space.gravity = (0, 900.0)
+        self._space.gravity = (0, 0.0)
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
 
@@ -38,10 +38,16 @@ class PhysicsSim:
 
         self._polys = []
         self._wheels = []
-        self._car_wheels = []
+        self._car_bodies = []
+        # bodies of road segments
+        self._wall_bodies = []
+        self._bullets = []
+
+        self._add_bouncy_walls()
 
         # self._create_pinjoint()
-        self._create_car()
+        # self._create_car()
+        # self._create_road()
 
         # Execution control
         self._running = True
@@ -64,6 +70,7 @@ class PhysicsSim:
         Updates the states of all objects and the screen
         :return:
         """
+        # self._move_road()
 
     def _draw(self):
         """
@@ -101,11 +108,12 @@ class PhysicsSim:
             # process right-mouse click events
             elif event.type == pg.MOUSEBUTTONDOWN and pg.mouse.get_pressed(3)[2]:
                 m_pos = pg.mouse.get_pos()
-                self._create_poly(m_pos[0], m_pos[1], 10, 10)
+                # self._create_poly(m_pos[0], m_pos[1], 10, 10)
+                self._create_bullet(m_pos[0], m_pos[1])
             elif event.type == pg.KEYDOWN and event.key == pg.K_d:
-                self._car_wheels[0].apply_force_at_world_point((100000, 0), (0, 0))
+                self._car_bodies[0].apply_force_at_world_point((100000, 0), (0, 0))
             elif event.type == pg.KEYDOWN and event.key == pg.K_a:
-                self._car_wheels[0].apply_force_at_world_point((-100000, 0), (0, 0))
+                self._car_bodies[0].apply_force_at_world_point((-100000, 0), (0, 0))
 
         # rapid fire
         # if pg.mouse.get_pressed(3)[0]:
@@ -162,6 +170,54 @@ class PhysicsSim:
         self._space.add(*static_lines)
         for line in pg_lines:
             self._static_barriers.append(line)
+
+    def _add_bouncy_walls(self):
+        vs = ((100, 100), (100, 170)), ((100, 170), (250, 180)), ((250, 180), (400, 400))
+        self._create_walls(*vs, radius=2)
+
+    def _create_walls(self, *vertices, radius):
+        """
+        Creates walls using static Segments
+        :param vertices: a comp. list of vertices
+        :param radius: the radius of the walls
+        :return: a list of pymunk Segment objects corresponding to the walls
+        """
+        static_body = pm.Body(body_type=pm.Body.STATIC)
+        static_lines = []
+        for v in vertices:
+            static_lines.append(pymunk.Segment(static_body, v[0], v[1], radius))
+
+        for line in static_lines:
+            line.elasticity = 0.95
+            line.friction = 0.9
+        self._space.add(static_body)
+        self._space.add(*static_lines)
+        for line in static_lines:
+            self._wall_bodies.append(line)
+
+        return static_lines
+
+    def _create_bullet(self, x_pos, y_pos):
+        mass = 2
+        radius = 5
+        inertia = pm.moment_for_circle(mass, 0, radius)
+        body = pm.Body(mass, inertia)
+        body.position = x_pos, y_pos
+        body.apply_impulse_at_local_point((3000, 0), (0, 0))
+        shape = pm.Circle(body, radius)
+        shape.elasticity = 1
+        shape.friction = 0.9
+        self._space.add(body, shape)
+        self._bullets.append(shape)
+
+    # def _move_road(self):
+    #     if self._car_bodies[2].position[0] > constants.WIDTH/2:
+    #         for road_seg in self._road_bodies:
+    #             road_seg.body.position = pm.Vec2d(road_seg.body.position[0]-1, road_seg.body.position[1])
+
+    # def _move_car(self):
+    #     if self._car_bodies[2].position[0] > constants.WIDTH / 2:
+    #         self._car_bodies[2].position[0] = constants.WIDTH / 2
 
     def _create_poly(self, x_pos, y_pos, w, h):
         # create vertices
@@ -222,7 +278,7 @@ class PhysicsSim:
         self._space.add(cb_support)
         self._space.add(car_front_wheel_constraint)
         self._space.add(cf_support)
-        self._car_wheels = back_wheel, front_wheel
+        self._car_bodies = back_wheel, front_wheel, car_body
 
 
 if __name__ == "__main__":
