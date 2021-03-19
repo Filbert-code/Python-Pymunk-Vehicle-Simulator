@@ -1,5 +1,6 @@
 # Python imports
 import constants
+import math
 
 # Library imports
 import pygame as pg
@@ -35,7 +36,9 @@ class PhysicsSim:
         # bodies of road segments
         self._wall_bodies = []
         self._bullets = []
-        self._static_segments = set()
+        self._static_segments = []
+
+        self._car_images_original = [pg.image.load("mr_car.png"), pg.image.load("mr_car_wheel.png")]
 
         # SPAWN STUFF
         # self._add_bouncy_walls()
@@ -79,7 +82,9 @@ class PhysicsSim:
         # self._draw_polys()
         # self._draw_barriers()
         # self._draw_wheels()
-        self._space.debug_draw(self._draw_options)
+        # self._space.debug_draw(self._draw_options)
+        self._draw_barriers()
+        self._draw_car()
 
     def _process_time(self):
         """
@@ -120,7 +125,28 @@ class PhysicsSim:
 
     def _draw_barriers(self):
         for line in self._static_segments:
-            pg.draw.line(self._screen, (0, 0, 0), line["start"], line["end"], 1)
+            pg.draw.line(self._screen, (0, 0, 0), line.a, line.b, 10)
+
+    def _draw_car(self):
+        # get rotation of the car body
+        rot = -math.degrees(self._car_bodies[2].angle)
+        # image of the car body (mr car)
+        image = pg.transform.rotate(self._car_images_original[0], rot)
+        rect = image.get_rect(center=image.get_rect(center=self._car_bodies[2].position).center)
+        # draw the car body onto the screen
+        self._screen.blit(image, rect)
+
+        rot = -math.degrees(self._car_bodies[0].angle)
+        # load wheel image
+        back_wheel_image = pg.transform.rotate(self._car_images_original[1], rot)
+        rect = back_wheel_image.get_rect(center=image.get_rect(center=self._car_bodies[0].position).center)
+        self._screen.blit(back_wheel_image, rect)
+        rot = -math.degrees(self._car_bodies[1].angle)
+        # load wheel image
+        back_wheel_image = pg.transform.rotate(self._car_images_original[1], rot)
+        rect = back_wheel_image.get_rect(center=image.get_rect(center=self._car_bodies[1].position).center)
+        self._screen.blit(back_wheel_image, rect)
+
 
     def _draw_wheels(self):
         for wheel in self._wheels:
@@ -153,15 +179,6 @@ class PhysicsSim:
             self._wall_bodies.append(line)
 
         return static_lines
-
-    # def _move_road(self):
-    #     if self._car_bodies[2].position[0] > constants.WIDTH/2:
-    #         for road_seg in self._road_bodies:
-    #             road_seg.body.position = pm.Vec2d(road_seg.body.position[0]-1, road_seg.body.position[1])
-
-    # def _move_car(self):
-    #     if self._car_bodies[2].position[0] > constants.WIDTH / 2:
-    #         self._car_bodies[2].position[0] = constants.WIDTH / 2
 
     def _create_poly(self, x_pos, y_pos, w, h):
         # create vertices
@@ -226,7 +243,8 @@ class PhysicsSim:
 
         self._space.add(static_body)
         self._space.add(*static_segments)
-        self._static_segments.add(*static_segments)
+        for seg in static_segments:
+            self._static_segments.append(seg)
 
     def _create_car(self):
         car_width, car_height = 120, 60
