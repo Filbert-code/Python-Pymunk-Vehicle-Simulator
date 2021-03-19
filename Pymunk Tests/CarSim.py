@@ -30,18 +30,12 @@ class PhysicsSim:
         # Number of physics steps per screen frame
         self._physics_steps_per_frame = 1
 
-        self._polys = []
-        self._wheels = []
-        self._car_bodies = []
         # bodies of road segments
-        self._wall_bodies = []
-        self._bullets = []
         self._static_segments = []
 
         self._car_images_original = [pg.image.load("mr_car.png"), pg.image.load("mr_car_wheel.png")]
 
         # SPAWN STUFF
-        # self._add_bouncy_walls()
         self._create_car()
         self._create_road()
 
@@ -49,6 +43,10 @@ class PhysicsSim:
         self._running = True
 
     def run(self):
+        """
+        Game loop
+        :return:
+        """
         while self._running:
             # Progress time forward
             self._process_time()
@@ -79,11 +77,8 @@ class PhysicsSim:
         draws pygame objects/shapes
         :return:
         """
-        # self._draw_polys()
-        # self._draw_barriers()
-        # self._draw_wheels()
         self._space.debug_draw(self._draw_options)
-        self._draw_barriers()
+        self._draw_road()
         self._draw_car()
 
     def _process_time(self):
@@ -105,16 +100,6 @@ class PhysicsSim:
             # exit the window with the escape key
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 self._running = False
-            # elif event.type == pg.KEYDOWN and event.key == pg.K_d:
-            #     # radius = self._car_bodies[0].radius
-            #     self._car_bodies[0].apply_force_at_world_point((5000, 12), (0, 0))
-            # elif event.type == pg.KEYDOWN and event.key == pg.K_a:
-            #     self._car_bodies[0].apply_force_at_world_point((-5000, 12), (0, 0))
-
-        # rapid fire
-        # if pg.mouse.get_pressed(3)[0]:
-        #     m_pos = pg.mouse.get_pos()
-        #     self._create_poly(m_pos[0], m_pos[1])
 
     def _clear_screen(self):
         """
@@ -123,14 +108,19 @@ class PhysicsSim:
         """
         self._screen.fill(pg.Color("white"))
 
-    def _draw_barriers(self):
+    def _draw_road(self):
+        """
+        Draw the road in pygame.
+        :return:
+        """
         for line in self._static_segments:
             pg.draw.line(self._screen, (0, 0, 0), line.a, line.b, 10)
 
     def _draw_car(self):
         """
-        Draws the car body and wheels onto the screen. 
-        :return:
+        Draws the car body and wheels onto the screen. Limit the x-pos of the car
+        to half of the screen width.
+        :return: None
         """
         # center coordinates of the car body in pm-space
         car_body_center = self._car_bodies[2].position
@@ -139,64 +129,32 @@ class PhysicsSim:
         # grab loaded image
         image = pg.transform.rotate(self._car_images_original[0], car_body_rot)
         car_body_rect = image.get_rect(center=image.get_rect(center=car_body_center).center)
+        # shift the x-pos of the body by (x-cord of the car body) - 400
         if car_body_rect.centerx > 400:
             car_body_rect.centerx = 400
         # draw the car body onto the screen
         self._screen.blit(image, car_body_rect)
-
-        rot = -math.degrees(self._car_bodies[0].angle)
-        # grab loaded image
-        image = pg.transform.rotate(self._car_images_original[1], rot)
-        rect = image.get_rect(center=image.get_rect(center=self._car_bodies[0].position).center)
-        if car_body_center[0] > 400:
-            rect.centerx -= car_body_center[0] - 400
-
-        # draw the car body onto the screen
-        self._screen.blit(image, rect)
-
-        rot = -math.degrees(self._car_bodies[1].angle)
-        # grab loaded image
-        image = pg.transform.rotate(self._car_images_original[1], rot)
-        rect = image.get_rect(center=image.get_rect(center=self._car_bodies[1].position).center)
-        if car_body_center[0] > 400:
-            rect.centerx -= car_body_center[0] - 400
-
-        # draw the car body onto the screen
-        self._screen.blit(image, rect)
-
-    def _draw_wheels(self):
-        for wheel in self._wheels:
-            pg.draw.circle(self._screen, pg.Color((255, 0, 0)), wheel.body.position, wheel.radius)
-
-    def _draw_polys(self):
-        for poly in self._polys:
-            bb = poly.bb
-            r = pg.Rect(bb.left, bb.top, bb.right-bb.left, bb.top-bb.bottom)
-            pg.draw.rect(self._screen, pg.Color((255, 0, 0)), r)
-
-    def _create_walls(self, *vertices, radius):
-        """
-        Creates walls using static Segments
-        :param vertices: a comp. list of vertices
-        :param radius: the radius of the walls
-        :return: a list of pymunk Segment objects corresponding to the walls
-        """
-        static_body = pm.Body(body_type=pm.Body.STATIC)
-        static_lines = []
-        for v in vertices:
-            static_lines.append(pymunk.Segment(static_body, v[0], v[1], radius))
-
-        for line in static_lines:
-            line.elasticity = 0.95
-            line.friction = 0.9
-        self._space.add(static_body)
-        self._space.add(*static_lines)
-        for line in static_lines:
-            self._wall_bodies.append(line)
-
-        return static_lines
+        # drawing front and back wheels
+        for i in range(2):
+            rot = -math.degrees(self._car_bodies[i].angle)
+            # grab loaded image
+            image = pg.transform.rotate(self._car_images_original[1], rot)
+            rect = image.get_rect(center=image.get_rect(center=self._car_bodies[i].position).center)
+            # shift the x-pos of the wheel by (x-cord of the car body) - 400
+            if car_body_center[0] > 400:
+                rect.centerx -= car_body_center[0] - 400
+            # draw the car body onto the screen
+            self._screen.blit(image, rect)
 
     def _create_poly(self, x_pos, y_pos, w, h):
+        """
+        Create a polygon. Used to make the body of the car.
+        :param x_pos: x coordinate of the center of the body
+        :param y_pos: y coordinate of the center of the body
+        :param w: body width
+        :param h: body height
+        :return: Body and Shape objects
+        """
         # create vertices
         vs = [(-w/2, -h/2), (w/2, -h/2), (w/2, h/2), (-w/2, h/2)]
         mass = 400.0
@@ -214,14 +172,13 @@ class PhysicsSim:
         shape.friction = 0.9
 
         self._space.add(body, shape)
-        self._polys.append(shape)
         return body, shape
 
     def _create_wheel(self, x_pos, y_pos, radius):
         """
-                Create a wheel.
-                :return: None
-                """
+        Create a wheel.
+        :return: None
+        """
         mass = 20
         inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
         body = pymunk.Body(mass, inertia, pm.Body.DYNAMIC)
@@ -231,26 +188,28 @@ class PhysicsSim:
         shape.elasticity = 0.3
         shape.friction = 0.9
         self._space.add(body, shape)
-        self._wheels.append(shape)
         return body, shape
 
     def _create_road(self):
+        """
+        Create a road for the car using Pymunk Segments. Every Segment is static; meaning they can't move.
+        :return: None
+        """
         vs = []
-        for i in range(6):
-            v = ((i*200, constants.HEIGHT), ((i+1)*200, constants.HEIGHT))
-            vs.append(v)
-
+        # vertices for bumps
         bumps_vs = [((600, 600), (900, 575)), ((1200, 600), (1300, 550)), ((2000, 600), (2300, 500))]
         for v in bumps_vs:
             vs.append(v)
-
+        # vertices for a flat road throughout the whole level
         for i in range(17):
             v = ((i*200, constants.HEIGHT), ((i+1)*200, constants.HEIGHT))
             vs.append(v)
 
         static_body = pm.Body(body_type=pm.Body.STATIC)
+        # radius of all Segments
         radius = 5
         static_segments = []
+        # adjust the elasticity and friction of the road
         for i, v in enumerate(vs):
             seg = pymunk.Segment(static_body, vs[i][0], vs[i][1], radius)
             seg.elasticity = 0.95
@@ -259,10 +218,16 @@ class PhysicsSim:
 
         self._space.add(static_body)
         self._space.add(*static_segments)
+        # add to list for pygame to draw from coordinates
         for seg in static_segments:
             self._static_segments.append(seg)
 
     def _create_car(self):
+        """
+        Create the car's body and wheels. All Bodies are added to the space.
+        PinJoint Constraints are made to attached the wheels to the car; they are added to the space as well.
+        :return:
+        """
         car_width, car_height = 120, 60
         starting_pos = (100, constants.HEIGHT / 2 + 100)
         # starting_pos = (constants.WIDTH/2+300, constants.HEIGHT/2 + 100)
