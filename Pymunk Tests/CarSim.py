@@ -82,7 +82,7 @@ class PhysicsSim:
         # self._draw_polys()
         # self._draw_barriers()
         # self._draw_wheels()
-        # self._space.debug_draw(self._draw_options)
+        self._space.debug_draw(self._draw_options)
         self._draw_barriers()
         self._draw_car()
 
@@ -128,24 +128,64 @@ class PhysicsSim:
             pg.draw.line(self._screen, (0, 0, 0), line.a, line.b, 10)
 
     def _draw_car(self):
-        # get rotation of the car body
-        rot = -math.degrees(self._car_bodies[2].angle)
-        # image of the car body (mr car)
-        image = pg.transform.rotate(self._car_images_original[0], rot)
-        rect = image.get_rect(center=image.get_rect(center=self._car_bodies[2].position).center)
+        car_body_center = self._car_bodies[2].position
+        # get rotation of the car body or wheel
+        car_body_rot = -math.degrees(self._car_bodies[2].angle)
+        # grab loaded image
+        image = pg.transform.rotate(self._car_images_original[0], car_body_rot)
+        car_body_rect = image.get_rect(center=image.get_rect(center=car_body_center).center)
+        if car_body_rect.centerx > 400:
+            car_body_rect.centerx = 400
+        # draw the car body onto the screen
+        self._screen.blit(image, car_body_rect)
+
+        rot = -math.degrees(self._car_bodies[0].angle)
+        # grab loaded image
+        image = pg.transform.rotate(self._car_images_original[1], rot)
+        rect = image.get_rect(center=image.get_rect(center=self._car_bodies[0].position).center)
+        if car_body_center[0] > 400:
+            rect.centerx -= car_body_center[0] - 400
+        # delta_y = math.cos(math.radians(car_body_rot))*30
+        # delta_x = math.sin(math.radians(car_body_rot))*30
+        #
+        # rect.centerx = car_body_rect.bottomleft[0] + delta_x
+        # rect.centery = car_body_rect.bottomleft[1] + delta_y
+        # print(delta_x, delta_y)
+        # print(car_body_rect.bottomleft)
+        # print(rect.centerx, rect.centery)
+
         # draw the car body onto the screen
         self._screen.blit(image, rect)
 
-        rot = -math.degrees(self._car_bodies[0].angle)
-        # load wheel image
-        back_wheel_image = pg.transform.rotate(self._car_images_original[1], rot)
-        rect = back_wheel_image.get_rect(center=image.get_rect(center=self._car_bodies[0].position).center)
-        self._screen.blit(back_wheel_image, rect)
         rot = -math.degrees(self._car_bodies[1].angle)
-        # load wheel image
-        back_wheel_image = pg.transform.rotate(self._car_images_original[1], rot)
-        rect = back_wheel_image.get_rect(center=image.get_rect(center=self._car_bodies[1].position).center)
-        self._screen.blit(back_wheel_image, rect)
+        # grab loaded image
+        image = pg.transform.rotate(self._car_images_original[1], rot)
+        rect = image.get_rect(center=image.get_rect(center=self._car_bodies[1].position).center)
+        if car_body_center[0] > 400:
+            rect.centerx -= car_body_center[0] - 400
+        # rect.centerx = car_body_rect.bottomright[0] + delta_x
+        # rect.centery = car_body_rect.bottomright[1] + delta_y
+
+        # draw the car body onto the screen
+        self._screen.blit(image, rect)
+
+
+        # # back wheel, front wheel, body offset
+        # wheel_offset = -60, 60, 0
+        # # blit the car body and wheels onto the screen
+        # for i in range(3):
+        #     k = 1 if i != 2 else 0
+        #     # get rotation of the car body or wheel
+        #     rot = -math.degrees(self._car_bodies[i].angle)
+        #     # grab loaded image
+        #     image = pg.transform.rotate(self._car_images_original[k], rot)
+        #     rect = image.get_rect(center=image.get_rect(center=self._car_bodies[i].position).center)
+        #     if rect.centerx > 400 + wheel_offset[i]:
+        #         rect.centerx = 400 + wheel_offset[i]
+        #
+        #     # draw the car body onto the screen
+        #     self._screen.blit(image, rect)
+
 
 
     def _draw_wheels(self):
@@ -224,7 +264,7 @@ class PhysicsSim:
             v = ((i*200, constants.HEIGHT), ((i+1)*200, constants.HEIGHT))
             vs.append(v)
 
-        bumps_vs = [((600, 600), (800, 575)), ((1200, 600), (1300, 550)), ((2000, 600), (2300, 500))]
+        bumps_vs = [((600, 600), (900, 575)), ((1200, 600), (1300, 550)), ((2000, 600), (2300, 500))]
         for v in bumps_vs:
             vs.append(v)
 
@@ -248,7 +288,8 @@ class PhysicsSim:
 
     def _create_car(self):
         car_width, car_height = 120, 60
-        starting_pos = (100, constants.HEIGHT/2 + 100)
+        starting_pos = (100, constants.HEIGHT / 2 + 100)
+        # starting_pos = (constants.WIDTH/2+300, constants.HEIGHT/2 + 100)
         car_body, shape = self._create_poly(starting_pos[0], starting_pos[1], car_width, car_height)
         back_wheel, shape = self._create_wheel(starting_pos[0] - 60, starting_pos[1] + 60, 25)
         front_wheel, shape = self._create_wheel(starting_pos[0] + 60, starting_pos[1] + 60, 25)
