@@ -79,8 +79,8 @@ class PhysicsSim:
         :return:
         """
         self._space.debug_draw(self._draw_options)
-        self._draw_road()
-        self._draw_car()
+        # self._draw_road()
+        # self._draw_car()
 
     def _process_time(self):
         """
@@ -210,9 +210,16 @@ class PhysicsSim:
             vs.append(v)
         # use RoadBuilder class to build a road and return the Segments of that road
         rb = RoadBuilder(self._space)
-        static_segs = rb.build_road(vs, 5)
+
+        # TESTS
+        vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 100, 40)
+        static_segs = rb.build_road(vertices, 5)
         for seg in static_segs:
             self._static_segments.append(seg)
+
+        # static_segs = rb.build_road(vs, 5)
+        # for seg in static_segs:
+        #     self._static_segments.append(seg)
 
     def _create_car(self):
         """
