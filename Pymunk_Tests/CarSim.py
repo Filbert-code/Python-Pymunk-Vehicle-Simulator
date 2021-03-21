@@ -212,7 +212,7 @@ class PhysicsSim:
         rb = RoadBuilder(self._space)
 
         # TESTS
-        vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 100, 40)
+        vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 100, 80)
         static_segs = rb.build_road(vertices, 5)
         for seg in static_segs:
             self._static_segments.append(seg)
