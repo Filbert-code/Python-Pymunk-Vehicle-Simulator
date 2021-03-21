@@ -1,6 +1,7 @@
 # Python imports
 import constants
 import math
+from RoadBuilder import RoadBuilder
 
 # Library imports
 import pygame as pg
@@ -114,7 +115,10 @@ class PhysicsSim:
         :return:
         """
         for line in self._static_segments:
-            pg.draw.line(self._screen, (0, 0, 0), line.a, line.b, 10)
+            car_centerx = self._car_bodies[2].position[0]
+            p1 = line.a
+            p2 = line.b
+            pg.draw.line(self._screen, (0, 0, 0), (p1[0] - car_centerx + 400, p1[1]), (p2[0] - car_centerx + 400, p2[1]), 10)
 
     def _draw_car(self):
         """
@@ -204,22 +208,10 @@ class PhysicsSim:
         for i in range(17):
             v = ((i*200, constants.HEIGHT), ((i+1)*200, constants.HEIGHT))
             vs.append(v)
-
-        static_body = pm.Body(body_type=pm.Body.STATIC)
-        # radius of all Segments
-        radius = 5
-        static_segments = []
-        # adjust the elasticity and friction of the road
-        for i, v in enumerate(vs):
-            seg = pymunk.Segment(static_body, vs[i][0], vs[i][1], radius)
-            seg.elasticity = 0.95
-            seg.friction = 0.9
-            static_segments.append(seg)
-
-        self._space.add(static_body)
-        self._space.add(*static_segments)
-        # add to list for pygame to draw from coordinates
-        for seg in static_segments:
+        # use RoadBuilder class to build a road and return the Segments of that road
+        rb = RoadBuilder(self._space)
+        static_segs = rb.build_road(vs, 5)
+        for seg in static_segs:
             self._static_segments.append(seg)
 
     def _create_car(self):
