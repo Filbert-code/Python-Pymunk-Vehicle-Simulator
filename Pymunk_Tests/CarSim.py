@@ -2,6 +2,8 @@
 import constants
 import math
 from RoadBuilder import RoadBuilder
+from Car import Car
+from Truck import Truck
 
 # Library imports
 import pygame as pg
@@ -37,7 +39,10 @@ class PhysicsSim:
         self._car_images_original = [pg.image.load("mr_car.png"), pg.image.load("mr_car_wheel.png")]
 
         # SPAWN STUFF
-        self._create_car()
+        # self._create_car()
+        truck = Truck(self._space, 300, 450)
+        truck.build()
+
         self._create_road()
 
         # Execution control
