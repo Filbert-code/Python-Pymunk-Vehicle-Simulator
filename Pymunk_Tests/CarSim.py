@@ -33,6 +33,10 @@ class PhysicsSim:
         # Number of physics steps per screen frame
         self._physics_steps_per_frame = 1
 
+        # mouse interactivity
+        self._mouse_joint = None
+        self._mouse_body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
+
         # bodies of road segments
         self._static_segments = []
 
@@ -106,6 +110,35 @@ class PhysicsSim:
             # exit the window with the escape key
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 self._running = False
+            # elif event.type == pg.MOUSEBUTTONDOWN:
+            #     if self._mouse_joint is not None:
+            #         self._space.remove(self._mouse_joint)
+            #         self._mouse_joint = None
+            #
+            #     p = pm.Vec2d(*event.pos)
+            #     hit = self._space.point_query_nearest(p, 5, pymunk.ShapeFilter())
+            #     if hit is not None and hit.shape.body.body_type == pm.Body.DYNAMIC:
+            #         shape = hit.shape
+            #         # Use the closest point on the surface if the click is outside
+            #         # of the shape.
+            #         if hit.distance > 0:
+            #             nearest = hit.point
+            #
+            #         else:
+            #             nearest = p
+            #         self._mouse_joint = pymunk.PivotJoint(
+            #             self._mouse_body, shape.body, p.int_tuple, (5, 5)
+            #         )
+            #         print(p.int_tuple)
+            #         print(shape.body.world_to_local(nearest))
+            #         self._mouse_joint.max_force = 200000
+            #         self._mouse_joint.error_bias = (1 - 0.15) ** 60
+            #         self._space.add(self._mouse_joint)
+            #
+            # elif event.type == pg.MOUSEBUTTONUP:
+            #     if self._mouse_joint is not None:
+            #         self._space.remove(self._mouse_joint)
+            #         self._mouse_joint = None
 
     def _clear_screen(self):
         """

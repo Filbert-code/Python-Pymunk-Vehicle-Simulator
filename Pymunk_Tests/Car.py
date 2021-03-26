@@ -38,13 +38,13 @@ class Car:
         body = pm.Body(mass, inertia)
         # connect the vertices to the body
         shape = pm.Poly(body, vs, radius=radius)
-        shape2 = pm.Circle(body, 50, (100, 0))
+        # shape2 = pm.Circle(body, 50, (100, 0))
         # position to print onto screen
         body.position = x_pos, y_pos
         shape.elasticity = elasticity
         shape.friction = friction
         shape.filter = pm.ShapeFilter(categories=0b1000)
-        shape2.filter = pm.ShapeFilter(categories=0b1000)
-        self._space.add(body, shape, shape2)
+        # shape2.filter = pm.ShapeFilter(categories=0b1000)
+        self._space.add(body, shape)
         return body, shape
 
