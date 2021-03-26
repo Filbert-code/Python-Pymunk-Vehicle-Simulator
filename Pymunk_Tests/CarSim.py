@@ -44,8 +44,8 @@ class PhysicsSim:
 
         # SPAWN STUFF
         # self._create_car()
-        truck = Truck(self._space, 300, 450)
-        truck.build()
+        truck = Truck(self._space, 300, 300)
+        self._truck_wheels = truck.build()
 
         self._create_road()
 
@@ -77,10 +77,12 @@ class PhysicsSim:
         # self._move_road()
         keys = pg.key.get_pressed()
         if keys[pg.K_d]:
-            self._car_bodies[0].apply_force_at_world_point((5000, 12), (0, 0))
+            self._truck_wheels[0].apply_force_at_world_point((50000, 12), (0, 0))
+            self._truck_wheels[1].apply_force_at_world_point((50000, 12), (0, 0))
 
         if keys[pg.K_a]:
-            self._car_bodies[0].apply_force_at_world_point((-5000, 12), (0, 0))
+            self._truck_wheels[0].apply_force_at_world_point((-50000, 12), (0, 0))
+            self._truck_wheels[1].apply_force_at_world_point((-50000, 12), (0, 0))
 
     def _draw(self):
         """

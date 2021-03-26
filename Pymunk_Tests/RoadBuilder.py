@@ -19,7 +19,7 @@ class RoadBuilder:
         static_segments = []
         for v in vs:
             seg = pm.Segment(static_body, v[0], v[1], radius)
-            seg.elasticity = 0.50
+            seg.elasticity = 0.10
             seg.friction = 0.90
             static_segments.append(seg)
 
@@ -40,7 +40,7 @@ class RoadBuilder:
         # starting from 1 to be able to append new vertices to the vertices list that already contains 1
         for seg_num in range(1, total_segments*2):
             # most steep : 1, very flat: > 2
-            steepness = 3
+            steepness = 2
             # x-value has to be the same every other point to make the segments connect
             if seg_num % 2 == 1:
                 delta_y = randrange(int(-length/steepness), int(length/steepness))

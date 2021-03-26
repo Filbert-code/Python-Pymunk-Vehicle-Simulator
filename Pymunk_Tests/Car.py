@@ -8,7 +8,7 @@ class Car:
     def __init__(self, space):
         self._space = space
 
-    def _create_wheel(self, mass, x_pos, y_pos, radius, elasticity=0.3, friction=0.9):
+    def _create_wheel(self, mass, x_pos, y_pos, radius, elasticity=0.1, friction=0.9):
         """
         Create a wheel.
         :return: None
