@@ -18,7 +18,7 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH + 2600, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
         self._clock = pg.time.Clock()
 
         # pymunk space
@@ -112,35 +112,6 @@ class PhysicsSim:
             # exit the window with the escape key
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 self._running = False
-            # elif event.type == pg.MOUSEBUTTONDOWN:
-            #     if self._mouse_joint is not None:
-            #         self._space.remove(self._mouse_joint)
-            #         self._mouse_joint = None
-            #
-            #     p = pm.Vec2d(*event.pos)
-            #     hit = self._space.point_query_nearest(p, 5, pymunk.ShapeFilter())
-            #     if hit is not None and hit.shape.body.body_type == pm.Body.DYNAMIC:
-            #         shape = hit.shape
-            #         # Use the closest point on the surface if the click is outside
-            #         # of the shape.
-            #         if hit.distance > 0:
-            #             nearest = hit.point
-            #
-            #         else:
-            #             nearest = p
-            #         self._mouse_joint = pymunk.PivotJoint(
-            #             self._mouse_body, shape.body, p.int_tuple, (5, 5)
-            #         )
-            #         print(p.int_tuple)
-            #         print(shape.body.world_to_local(nearest))
-            #         self._mouse_joint.max_force = 200000
-            #         self._mouse_joint.error_bias = (1 - 0.15) ** 60
-            #         self._space.add(self._mouse_joint)
-            #
-            # elif event.type == pg.MOUSEBUTTONUP:
-            #     if self._mouse_joint is not None:
-            #         self._space.remove(self._mouse_joint)
-            #         self._mouse_joint = None
 
     def _clear_screen(self):
         """
@@ -155,7 +126,7 @@ class PhysicsSim:
         :return:
         """
         for line in self._static_segments:
-            car_centerx = self._car_bodies[2].position[0]
+            car_centerx = self._truck_wheels[2].position[0]
             p1 = line.a
             p2 = line.b
             pg.draw.line(self._screen, (0, 0, 0), (p1[0] - car_centerx + 400, p1[1]), (p2[0] - car_centerx + 400, p2[1]), 10)
@@ -167,9 +138,9 @@ class PhysicsSim:
         :return: None
         """
         # center coordinates of the car body in pm-space
-        car_body_center = self._car_bodies[2].position
+        car_body_center = self._truck_wheels[2].position
         # get rotation of the car body or wheel
-        car_body_rot = -math.degrees(self._car_bodies[2].angle)
+        car_body_rot = -math.degrees(self._truck_wheels[2].angle)
         # grab loaded image
         image = pg.transform.rotate(self._car_images_original[0], car_body_rot)
         car_body_rect = image.get_rect(center=image.get_rect(center=car_body_center).center)
@@ -180,10 +151,10 @@ class PhysicsSim:
         self._screen.blit(image, car_body_rect)
         # drawing front and back wheels
         for i in range(2):
-            rot = -math.degrees(self._car_bodies[i].angle)
+            rot = -math.degrees(self._truck_wheels[i].angle)
             # grab loaded image
             image = pg.transform.rotate(self._car_images_original[1], rot)
-            rect = image.get_rect(center=image.get_rect(center=self._car_bodies[i].position).center)
+            rect = image.get_rect(center=image.get_rect(center=self._truck_wheels[i].position).center)
             # shift the x-pos of the wheel by (x-cord of the car body) - 400
             if car_body_center[0] > 400:
                 rect.centerx -= car_body_center[0] - 400

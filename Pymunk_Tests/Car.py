@@ -37,7 +37,7 @@ class Car:
         # polygon body
         body = pm.Body(mass, inertia)
         # connect the vertices to the body
-        shape = pm.Poly(body, vs, radius=radius)
+        shape = pm.Poly(body, vs, radius=1)
         # shape2 = pm.Circle(body, 50, (100, 0))
         # position to print onto screen
         body.position = x_pos, y_pos
