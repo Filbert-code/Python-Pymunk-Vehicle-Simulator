@@ -39,32 +39,55 @@ class Truck(Car):
         self._space.add(truck_shape_6)
 
         # mass, x_pos, y_pos, radius, elasticity=0.3, friction=0.9
-        truck_back_wheel, shape = self._create_wheel(200, self.x_pos - 79, self.y_pos + 25, 22)
-        truck_front_wheel, shape = self._create_wheel(200, self.x_pos + 74, self.y_pos + 25, 22)
+        truck_back_wheel, shape = self._create_wheel(200, self.x_pos - 79, self.y_pos + 25, 21)
+        truck_front_wheel, shape = self._create_wheel(200, self.x_pos + 74, self.y_pos + 25, 21)
         self.create_wheel_contraints(truck_body, truck_back_wheel, truck_front_wheel)
         return truck_back_wheel, truck_front_wheel, truck_body
 
     def create_wheel_contraints(self, truck_body, truck_back_wheel, truck_front_wheel):
-        g, p = (45, 50)
-        g2, p2 = (35, 40)
-        back_wheel_dspring = pm.constraints.DampedSpring(truck_body, truck_back_wheel, (-79, 10), (0, 0), 50, 1000000, 1) # rest length, stiffness, dampness
-        front_wheel_dspring = pm.constraints.DampedSpring(truck_body, truck_front_wheel, (74, 10), (0, 0), 50, 600000, 1)
-        back_wheel_slide_joint_1 = pm.constraints.SlideJoint(truck_body, truck_back_wheel, (0, 20), (0, 0), 120, 140)
+        spring_strength = 70000
 
-        back_wheel_slide_joint_2 = pm.constraints.SlideJoint(truck_body, truck_back_wheel, (-110, 20), (0, 0), g, p)
-        back_wheel_pin_joint = pm.constraints.SlideJoint(truck_body, truck_back_wheel, (-50, 30), (0, 0), g2, p2)
-        front_wheel_slide_joint_1 = pm.constraints.SlideJoint(truck_body, truck_front_wheel, (0, 20), (0, 0), 120, 140)
+        back_wheel_dspring_1 = pm.constraints.DampedSpring(
+            truck_body, truck_back_wheel, (-108, 20), (0, 0), 42, spring_strength, 1
+        )
+        back_wheel_dspring_slide_joint_1 = pm.constraints.SlideJoint(
+            truck_body, truck_back_wheel, (-108, 20), (0, 0), 42, 48
+        )
+        back_wheel_dspring_2 = pm.constraints.DampedSpring(
+            truck_body, truck_back_wheel, (-50, 20), (0, 0), 42, spring_strength, 1
+        )
+        back_wheel_dspring_slide_joint_2 = pm.constraints.SlideJoint(
+            truck_body, truck_back_wheel, (-50, 20), (0, 0), 42, 48
+        )
+        front_wheel_dspring_1 = pm.constraints.DampedSpring(
+            truck_body, truck_front_wheel, (45, 20), (0, 0), 42, spring_strength, 1
+        )
+        front_wheel_dspring_slide_joint_1 = pm.constraints.SlideJoint(
+            truck_body, truck_front_wheel, (45, 20), (0, 0), 42, 48
+        )
+        front_wheel_dspring_2 = pm.constraints.DampedSpring(
+            truck_body, truck_front_wheel, (103, 20), (0, 0), 42, spring_strength, 1
+        )
+        front_wheel_dspring_slide_joint_2 = pm.constraints.SlideJoint(
+            truck_body, truck_front_wheel, (103, 20), (0, 0),42, 48
+        )
 
-        front_wheel_slide_joint_2 = pm.constraints.SlideJoint(truck_body, truck_front_wheel, (110, 20), (0, 0), g, p)
-        front_wheel_pin_joint = pm.constraints.SlideJoint(truck_body, truck_front_wheel, (45, 30), (0, 0), g2, p2)
-        self._space.add(back_wheel_dspring)
-        self._space.add(front_wheel_dspring)
-        # self._space.add(back_wheel_slide_joint_1)
-        self._space.add(back_wheel_pin_joint)
-        self._space.add(back_wheel_slide_joint_2)
-        # self._space.add(front_wheel_slide_joint_1)
-        self._space.add(front_wheel_pin_joint)
-        self._space.add(front_wheel_slide_joint_2)
+        back_wheel_slide_joint = pm.constraints.SlideJoint(
+            truck_body, truck_back_wheel, (-79, 20), (0, 0), 30, 35
+        )
+        front_wheel_slide_joint = pm.constraints.SlideJoint(
+            truck_body, truck_front_wheel, (74, 20), (0, 0), 30, 35
+        )
+        self._space.add(back_wheel_dspring_1)
+        self._space.add(back_wheel_dspring_2)
+        self._space.add(front_wheel_dspring_1)
+        self._space.add(front_wheel_dspring_2)
+        self._space.add(back_wheel_slide_joint)
+        self._space.add(front_wheel_slide_joint)
+        self._space.add(back_wheel_dspring_slide_joint_1)
+        self._space.add(back_wheel_dspring_slide_joint_2)
+        self._space.add(front_wheel_dspring_slide_joint_1)
+        self._space.add(front_wheel_dspring_slide_joint_2)
 
     def build(self):
         return self.create_body_wheels()

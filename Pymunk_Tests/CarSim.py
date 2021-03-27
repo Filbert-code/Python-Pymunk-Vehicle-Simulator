@@ -18,7 +18,7 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH + 2600, constants.HEIGHT))
         self._clock = pg.time.Clock()
 
         # pymunk space
