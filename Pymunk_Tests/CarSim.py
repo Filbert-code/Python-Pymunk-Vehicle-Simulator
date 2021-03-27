@@ -18,7 +18,7 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH + 2600, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
         self._clock = pg.time.Clock()
 
         # pymunk space
@@ -74,24 +74,26 @@ class PhysicsSim:
         Updates the states of all objects and the screen
         :return:
         """
-        # self._move_road()
         keys = pg.key.get_pressed()
         if keys[pg.K_d]:
-            self._truck_wheels[0].apply_force_at_world_point((50000, 12), (0, 0))
-            self._truck_wheels[1].apply_force_at_world_point((50000, 12), (0, 0))
+            if self._truck_wheels[0].velocity.int_tuple[0] < 500:  # limiting velocity to 500
+                # apply 30000 force to wheels
+                self._truck_wheels[0].apply_force_at_world_point((30000, 12), (0, 0))
+                self._truck_wheels[1].apply_force_at_world_point((30000, 12), (0, 0))
 
         if keys[pg.K_a]:
-            self._truck_wheels[0].apply_force_at_world_point((-50000, 12), (0, 0))
-            self._truck_wheels[1].apply_force_at_world_point((-50000, 12), (0, 0))
+            if self._truck_wheels[0].velocity.int_tuple[0] < 500:
+                self._truck_wheels[0].apply_force_at_world_point((-30000, 12), (0, 0))
+                self._truck_wheels[1].apply_force_at_world_point((-30000, 12), (0, 0))
 
     def _draw(self):
         """
         draws pygame objects/shapes
         :return:
         """
-        self._space.debug_draw(self._draw_options)
-        # self._draw_road()
-        # self._draw_car()
+        # self._space.debug_draw(self._draw_options)
+        self._draw_road()
+        self._draw_car()
 
     def _process_time(self):
         """
@@ -142,7 +144,7 @@ class PhysicsSim:
         # get rotation of the car body or wheel
         car_body_rot = -math.degrees(self._truck_wheels[2].angle)
         # grab loaded image
-        image = pg.transform.rotate(self._car_images_original[0], car_body_rot)
+        image = pg.transform.rotate(pg.image.load("images/Truck.png"), car_body_rot)
         car_body_rect = image.get_rect(center=image.get_rect(center=car_body_center).center)
         # shift the x-pos of the body by (x-cord of the car body) - 400
         if car_body_rect.centerx > 400:

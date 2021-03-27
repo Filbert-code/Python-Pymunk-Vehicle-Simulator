@@ -1,6 +1,6 @@
 import pygame as pg
 import sys
-from images.Hexagon import Hexagon
+from Pymunk_Tests.images.Hexagon import Hexagon
 import constants
 from random import randrange
 from random import choice

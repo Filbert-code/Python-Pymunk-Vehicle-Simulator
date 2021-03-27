@@ -5,7 +5,7 @@ import constants
 class Hexagon(pg.sprite.Sprite):
     def __init__(self, x, y, velx, vely):
         pg.sprite.Sprite.__init__(self)
-        self.image = pg.image.load("../Pygame Tests/hexagon.png")
+        self.image = pg.image.load("../../Pygame Tests/hexagon.png")
         self.image = pg.transform.scale(self.image, (150, 150))
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
