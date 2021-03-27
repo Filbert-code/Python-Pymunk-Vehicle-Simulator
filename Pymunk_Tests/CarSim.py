@@ -40,7 +40,8 @@ class PhysicsSim:
         # bodies of road segments
         self._static_segments = []
 
-        self._car_images_original = [pg.image.load("mr_car.png"), pg.image.load("mr_car_wheel.png")]
+        wheel_image = pg.image.load("mr_car_wheel.png")
+        self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
 
         # SPAWN STUFF
         # self._create_car()
@@ -78,20 +79,20 @@ class PhysicsSim:
         if keys[pg.K_d]:
             if self._truck_wheels[0].velocity.int_tuple[0] < 500:  # limiting velocity to 500
                 # apply 30000 force to wheels
-                self._truck_wheels[0].apply_force_at_world_point((30000, 12), (0, 0))
-                self._truck_wheels[1].apply_force_at_world_point((30000, 12), (0, 0))
+                self._truck_wheels[0].apply_force_at_world_point((50000, 12), (0, 0))
+                self._truck_wheels[1].apply_force_at_world_point((50000, 12), (0, 0))
 
         if keys[pg.K_a]:
             if self._truck_wheels[0].velocity.int_tuple[0] < 500:
-                self._truck_wheels[0].apply_force_at_world_point((-30000, 12), (0, 0))
-                self._truck_wheels[1].apply_force_at_world_point((-30000, 12), (0, 0))
+                self._truck_wheels[0].apply_force_at_world_point((-50000, 12), (0, 0))
+                self._truck_wheels[1].apply_force_at_world_point((-50000, 12), (0, 0))
 
     def _draw(self):
         """
         draws pygame objects/shapes
         :return:
         """
-        # self._space.debug_draw(self._draw_options)
+        self._space.debug_draw(self._draw_options)
         self._draw_road()
         self._draw_car()
 
