@@ -4,6 +4,7 @@ import math
 from RoadBuilder import RoadBuilder
 from Car import Car
 from Truck import Truck
+from Sportscar import Sportscar
 
 # Library imports
 import pygame as pg
@@ -18,7 +19,7 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH + 400, constants.HEIGHT))
         self._clock = pg.time.Clock()
 
         # pymunk space
@@ -44,9 +45,10 @@ class PhysicsSim:
         self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
 
         # SPAWN STUFF
-        # self._create_car()
-        truck = Truck(self._space, 300, 300)
-        self._truck_wheels = truck.build()
+        self._car = Truck(self._space, 300, 300)
+        self._car.build()
+        # sportscar = Sportscar(self._space, 300, 350)
+        # self._car = sportscar.build()
 
         self._create_road()
 
@@ -77,22 +79,24 @@ class PhysicsSim:
         """
         keys = pg.key.get_pressed()
         if keys[pg.K_d]:
-            if self._truck_wheels[0].velocity.int_tuple[0] < 500:  # limiting velocity to 500
-                # apply 30000 force to wheels
-                self._truck_wheels[0].apply_force_at_world_point((50000, 12), (0, 0))
-                self._truck_wheels[1].apply_force_at_world_point((50000, 12), (0, 0))
+            # limiting velocity to 500
+            if self._car.wheels[0].velocity.int_tuple[0] < 500:
+                self._car.wheels[0].apply_force_at_world_point((50000, 12), (0, 0))
+            if self._car.wheels[1].velocity.int_tuple[0] < 500:
+                self._car.wheels[1].apply_force_at_world_point((50000, 12), (0, 0))
 
         if keys[pg.K_a]:
-            if self._truck_wheels[0].velocity.int_tuple[0] < 500:
-                self._truck_wheels[0].apply_force_at_world_point((-50000, 12), (0, 0))
-                self._truck_wheels[1].apply_force_at_world_point((-50000, 12), (0, 0))
+            if self._car.wheels[0].velocity.int_tuple[0] > -500:
+                self._car.wheels[0].apply_force_at_world_point((-50000, 12), (0, 0))
+            if self._car.wheels[1].velocity.int_tuple[0] > -500:
+                self._car.wheels[1].apply_force_at_world_point((-50000, 12), (0, 0))
 
     def _draw(self):
         """
         draws pygame objects/shapes
         :return:
         """
-        self._space.debug_draw(self._draw_options)
+        # self._space.debug_draw(self._draw_options)
         self._draw_road()
         self._draw_car()
 
@@ -129,10 +133,17 @@ class PhysicsSim:
         :return:
         """
         for line in self._static_segments:
-            car_centerx = self._truck_wheels[2].position[0]
+            car_centerx = self._car.body.position[0]
             p1 = line.a
             p2 = line.b
-            pg.draw.line(self._screen, (0, 0, 0), (p1[0] - car_centerx + 400, p1[1]), (p2[0] - car_centerx + 400, p2[1]), 10)
+            # shift the road the opposite direction of the player's movement to simulate the car is moving
+            if car_centerx >= 400:
+                x_pos = (p1[0] - car_centerx + 400, p1[1])
+                y_pos = (p2[0] - car_centerx + 400, p2[1])
+                pg.draw.line(self._screen, (0, 0, 0), x_pos, y_pos, 10)
+            else:
+                x_pos, y_pos = (p1[0], p1[1]), (p2[0], p2[1])
+                pg.draw.line(self._screen, (0, 0, 0), x_pos, y_pos, 10)
 
     def _draw_car(self):
         """
@@ -141,9 +152,9 @@ class PhysicsSim:
         :return: None
         """
         # center coordinates of the car body in pm-space
-        car_body_center = self._truck_wheels[2].position
+        car_body_center = self._car.body.position
         # get rotation of the car body or wheel
-        car_body_rot = -math.degrees(self._truck_wheels[2].angle)
+        car_body_rot = -math.degrees(self._car.body.angle)
         # grab loaded image
         image = pg.transform.rotate(pg.image.load("images/Truck.png"), car_body_rot)
         car_body_rect = image.get_rect(center=image.get_rect(center=car_body_center).center)
@@ -154,10 +165,10 @@ class PhysicsSim:
         self._screen.blit(image, car_body_rect)
         # drawing front and back wheels
         for i in range(2):
-            rot = -math.degrees(self._truck_wheels[i].angle)
+            rot = -math.degrees(self._car.wheels[i].angle)
             # grab loaded image
             image = pg.transform.rotate(self._car_images_original[1], rot)
-            rect = image.get_rect(center=image.get_rect(center=self._truck_wheels[i].position).center)
+            rect = image.get_rect(center=image.get_rect(center=self._car.wheels[i].position).center)
             # shift the x-pos of the wheel by (x-cord of the car body) - 400
             if car_body_center[0] > 400:
                 rect.centerx -= car_body_center[0] - 400
