@@ -23,7 +23,7 @@ class Car:
         self._space.add(body, shape)
         return body, shape
 
-    def _create_poly(self, mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9):
+    def create_poly(self, mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9):
         """
         Create a polygon. Used to make the body of the car.
         :return: Body and Shape objects

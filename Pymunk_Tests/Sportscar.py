@@ -1,4 +1,5 @@
 import pymunk as pm
+import pygame as pg
 from Car import Car
 
 
@@ -13,7 +14,12 @@ class Sportscar(Car):
         self.y_pos = y_pos
         self.body = None
         self.wheels = []
-        self.wheel_turn_force = 18000
+        self.wheel_turn_force = 36000
+        self.max_speed = 1000
+        self.all_wheel_drive = False
+        self.image = pg.image.load("images/Sportscar.png")
+        # offset for the center of the car
+        self.center_offset = (17, 0)
 
     def create_body_wheels(self):
         w = 250
@@ -21,12 +27,12 @@ class Sportscar(Car):
         shape_filter = pm.ShapeFilter(categories=0b1000)
         # mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9
         vs = [(-37, 34), (-37, 0), (-25, -35), (0, -35), (55, -12), (66, 34)]
-        self.body, shape = self._create_poly(1000, self.x_pos, self.y_pos, w, h, vs=vs)
+        self.body, shape = self.create_poly(1000, self.x_pos, self.y_pos, w, h, vs=vs)
         vs = [(55, -12), (66, 34), (73, -13), (73, 28)]
         car_shape_1 = pm.Poly(self.body, vs, radius=1)
-        vs = [(73, -13), (73, 0), (91, -12), (124, -9), (124, 0)]
+        vs = [(73, -13), (73, 0), (91, -12), (130, -9), (130, 0)]
         car_shape_2 = pm.Poly(self.body, vs, radius=1)
-        vs = [(124, -9), (124, 0), (146, 3), (147, 34), (124, 34)]
+        vs = [(130, -9), (130, 0), (146, 3), (147, 34), (130, 34)]
         car_shape_3 = pm.Poly(self.body, vs, radius=1)
         vs = [(-25, -35), (-37, 0), (-88, -16), (-88, 0)]
         car_shape_4 = pm.Poly(self.body, vs, radius=1)
@@ -59,34 +65,34 @@ class Sportscar(Car):
         spring_strength = 170000
 
         back_wheel_dspring_1 = pm.constraints.DampedSpring(
-            body, back_wheel, (-90, 0), (0, 0), 42, spring_strength, 1
+            body, back_wheel, (-89, 0), (0, 0), 42, spring_strength, 1
         )
         back_wheel_dspring_slide_joint_1 = pm.constraints.SlideJoint(
-            body, back_wheel, (-90, 0), (0, 0), 42, 48
+            body, back_wheel, (-89, 0), (0, 0), 42, 48
         )
         back_wheel_dspring_2 = pm.constraints.DampedSpring(
-            body, back_wheel, (-32, 0), (0, 0), 42, spring_strength, 1
+            body, back_wheel, (-31, 0), (0, 0), 42, spring_strength, 1
         )
         back_wheel_dspring_slide_joint_2 = pm.constraints.SlideJoint(
-            body, back_wheel, (-32, 0), (0, 0), 42, 48
+            body, back_wheel, (-31, 0), (0, 0), 42, 48
         )
         back_wheel_slide_joint = pm.constraints.SlideJoint(
-            body, back_wheel, (-61, 0), (0, 0), 30, 35
+            body, back_wheel, (-60, 0), (0, 0), 30, 35
         )
         front_wheel_dspring_1 = pm.constraints.DampedSpring(
-            body, front_wheel, (70, 0), (0, 0), 42, spring_strength, 1
+            body, front_wheel, (76, 0), (0, 0), 42, spring_strength, 1
         )
         front_wheel_dspring_slide_joint_1 = pm.constraints.SlideJoint(
-            body, front_wheel, (70, 0), (0, 0), 42, 48
+            body, front_wheel, (76, 0), (0, 0), 42, 48
         )
         front_wheel_dspring_2 = pm.constraints.DampedSpring(
-            body, front_wheel, (128, 0), (0, 0), 42, spring_strength, 1
+            body, front_wheel, (134, 0), (0, 0), 42, spring_strength, 1
         )
         front_wheel_dspring_slide_joint_2 = pm.constraints.SlideJoint(
-            body, front_wheel, (128, 0), (0, 0),42, 48
+            body, front_wheel, (134, 0), (0, 0),42, 48
         )
         front_wheel_slide_joint = pm.constraints.SlideJoint(
-            body, front_wheel, (99, 0), (0, 0), 30, 35
+            body, front_wheel, (105, 0), (0, 0), 30, 35
         )
         self._space.add(back_wheel_dspring_1)
         self._space.add(back_wheel_dspring_2)

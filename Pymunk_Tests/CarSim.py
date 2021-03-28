@@ -2,6 +2,7 @@
 import constants
 import math
 from RoadBuilder import RoadBuilder
+from ObstacleCourse import ObstacleCourse
 from Car import Car
 from Truck import Truck
 from Sportscar import Sportscar
@@ -19,7 +20,7 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH + 400, constants.HEIGHT))
         self._clock = pg.time.Clock()
 
         # pymunk space
@@ -45,12 +46,14 @@ class PhysicsSim:
         self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
 
         # SPAWN STUFF
-        # self._car = Truck(self._space, 300, 300)
+        # self._car = Truck(self._space, 100, 300)
         # self._car.build()
-        self._car = Sportscar(self._space, 300, 350)
+        self._car = Sportscar(self._space, 200, 350)
         self._car.build()
 
-        self._create_road()
+        obc = ObstacleCourse(self._space)
+        obc.build()
+        # self._create_road()
 
         # Execution control
         self._running = True
@@ -78,18 +81,22 @@ class PhysicsSim:
         :return:
         """
         keys = pg.key.get_pressed()
+        # going forward
         if keys[pg.K_d]:
             # limiting velocity to 500
-            if self._car.wheels[0].velocity.int_tuple[0] < 500:
+            if self._car.wheels[0].velocity.int_tuple[0] < self._car.max_speed:
                 self._car.wheels[0].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
-            if self._car.wheels[1].velocity.int_tuple[0] < 500:
-                self._car.wheels[1].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
-
+            # all wheel drive
+            if self._car.all_wheel_drive:
+                if self._car.wheels[1].velocity.int_tuple[0] < self._car.max_speed:
+                    self._car.wheels[1].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
+        # going backward
         if keys[pg.K_a]:
-            if self._car.wheels[0].velocity.int_tuple[0] > -500:
+            if self._car.wheels[0].velocity.int_tuple[0] > -self._car.max_speed:
                 self._car.wheels[0].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
-            if self._car.wheels[1].velocity.int_tuple[0] > -500:
-                self._car.wheels[1].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
+            if self._car.all_wheel_drive:
+                if self._car.wheels[1].velocity.int_tuple[0] > -self._car.max_speed:
+                    self._car.wheels[1].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
 
     def _draw(self):
         """
@@ -152,11 +159,12 @@ class PhysicsSim:
         :return: None
         """
         # center coordinates of the car body in pm-space
-        car_body_center = self._car.body.position
+        car_body_center = self._car.body.position + self._car.center_offset
         # get rotation of the car body or wheel
         car_body_rot = -math.degrees(self._car.body.angle)
         # grab loaded image
-        image = pg.transform.rotate(pg.image.load("images/Truck.png"), car_body_rot)
+        image = pg.transform.rotate(self._car.image, car_body_rot)
+
         car_body_rect = image.get_rect(center=image.get_rect(center=car_body_center).center)
         # shift the x-pos of the body by (x-cord of the car body) - 400
         if car_body_rect.centerx > 400:
@@ -224,27 +232,12 @@ class PhysicsSim:
         Create a road for the car using Pymunk Segments. Every Segment is static; meaning they can't move.
         :return: None
         """
-        vs = []
-        # vertices for bumps
-        bumps_vs = [((600, 600), (900, 575)), ((1200, 600), (1300, 550)), ((2000, 600), (2300, 500))]
-        for v in bumps_vs:
-            vs.append(v)
-        # vertices for a flat road throughout the whole level
-        for i in range(17):
-            v = ((i*200, constants.HEIGHT), ((i+1)*200, constants.HEIGHT))
-            vs.append(v)
         # use RoadBuilder class to build a road and return the Segments of that road
         rb = RoadBuilder(self._space)
-
-        # TESTS
         vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 100, 80)
         static_segs = rb.build_road(vertices, 5)
         for seg in static_segs:
             self._static_segments.append(seg)
-
-        # static_segs = rb.build_road(vs, 5)
-        # for seg in static_segs:
-        #     self._static_segments.append(seg)
 
     def _create_car(self):
         """

@@ -1,4 +1,5 @@
 import pymunk as pm
+import pygame as pg
 from Car import Car
 
 
@@ -14,6 +15,11 @@ class Truck(Car):
         self.body = None
         self.wheels = []
         self.wheel_turn_force = 50000
+        self.max_speed = 500
+        self.all_wheel_drive = True
+        self.image = pg.image.load("images/Truck.png")
+        # offset for the center of the car
+        self.center_offset = (0, 0)
 
     def create_body_wheels(self):
         w = 250
@@ -21,7 +27,7 @@ class Truck(Car):
         shape_filter = pm.ShapeFilter(categories=0b1000)
         # mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9
         vs = [(-15, -h/2), (30, -h/2), (50, -20), (-20, 0), (-20, h/2), (50, h/2)]
-        self.body, shape = self._create_poly(3000, self.x_pos, self.y_pos, w, h, vs=vs)
+        self.body, shape = self.create_poly(3000, self.x_pos, self.y_pos, w, h, vs=vs)
         vs = [(50, -20), (62, -10), (62, 20), (50, 20)]
         truck_shape_1 = pm.Poly(self.body, vs, radius=1)
         vs = [(62, -10), (62, 20), (98, -5), (98, 20)]
