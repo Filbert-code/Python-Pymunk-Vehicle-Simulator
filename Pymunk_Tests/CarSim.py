@@ -24,7 +24,7 @@ class PhysicsSim:
 
         # pymunk space
         self._space = pm.Space()
-        self._space.gravity = (0, 0.0)
+        self._space.gravity = (0, 981.0)
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
 
@@ -81,15 +81,15 @@ class PhysicsSim:
         if keys[pg.K_d]:
             # limiting velocity to 500
             if self._car.wheels[0].velocity.int_tuple[0] < 500:
-                self._car.wheels[0].apply_force_at_world_point((50000, 12), (0, 0))
+                self._car.wheels[0].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
             if self._car.wheels[1].velocity.int_tuple[0] < 500:
-                self._car.wheels[1].apply_force_at_world_point((50000, 12), (0, 0))
+                self._car.wheels[1].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
 
         if keys[pg.K_a]:
             if self._car.wheels[0].velocity.int_tuple[0] > -500:
-                self._car.wheels[0].apply_force_at_world_point((-50000, 12), (0, 0))
+                self._car.wheels[0].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
             if self._car.wheels[1].velocity.int_tuple[0] > -500:
-                self._car.wheels[1].apply_force_at_world_point((-50000, 12), (0, 0))
+                self._car.wheels[1].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
 
     def _draw(self):
         """

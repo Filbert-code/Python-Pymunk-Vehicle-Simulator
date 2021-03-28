@@ -13,6 +13,7 @@ class Sportscar(Car):
         self.y_pos = y_pos
         self.body = None
         self.wheels = []
+        self.wheel_turn_force = 18000
 
     def create_body_wheels(self):
         w = 250
@@ -54,39 +55,38 @@ class Sportscar(Car):
         self.wheels.append(front_wheel)
         self.create_wheel_contraints(self.body, self.wheels[0], self.wheels[1])
 
-    def create_wheel_contraints(self, truck_body, truck_back_wheel, truck_front_wheel):
+    def create_wheel_contraints(self, body, back_wheel, front_wheel):
         spring_strength = 170000
 
         back_wheel_dspring_1 = pm.constraints.DampedSpring(
-            truck_body, truck_back_wheel, (-108, 20), (0, 0), 42, spring_strength, 1
+            body, back_wheel, (-90, 0), (0, 0), 42, spring_strength, 1
         )
         back_wheel_dspring_slide_joint_1 = pm.constraints.SlideJoint(
-            truck_body, truck_back_wheel, (-108, 20), (0, 0), 42, 48
+            body, back_wheel, (-90, 0), (0, 0), 42, 48
         )
         back_wheel_dspring_2 = pm.constraints.DampedSpring(
-            truck_body, truck_back_wheel, (-50, 20), (0, 0), 42, spring_strength, 1
+            body, back_wheel, (-32, 0), (0, 0), 42, spring_strength, 1
         )
         back_wheel_dspring_slide_joint_2 = pm.constraints.SlideJoint(
-            truck_body, truck_back_wheel, (-50, 20), (0, 0), 42, 48
+            body, back_wheel, (-32, 0), (0, 0), 42, 48
+        )
+        back_wheel_slide_joint = pm.constraints.SlideJoint(
+            body, back_wheel, (-61, 0), (0, 0), 30, 35
         )
         front_wheel_dspring_1 = pm.constraints.DampedSpring(
-            truck_body, truck_front_wheel, (45, 20), (0, 0), 42, spring_strength, 1
+            body, front_wheel, (70, 0), (0, 0), 42, spring_strength, 1
         )
         front_wheel_dspring_slide_joint_1 = pm.constraints.SlideJoint(
-            truck_body, truck_front_wheel, (45, 20), (0, 0), 42, 48
+            body, front_wheel, (70, 0), (0, 0), 42, 48
         )
         front_wheel_dspring_2 = pm.constraints.DampedSpring(
-            truck_body, truck_front_wheel, (103, 20), (0, 0), 42, spring_strength, 1
+            body, front_wheel, (128, 0), (0, 0), 42, spring_strength, 1
         )
         front_wheel_dspring_slide_joint_2 = pm.constraints.SlideJoint(
-            truck_body, truck_front_wheel, (103, 20), (0, 0),42, 48
-        )
-
-        back_wheel_slide_joint = pm.constraints.SlideJoint(
-            truck_body, truck_back_wheel, (-79, 20), (0, 0), 30, 35
+            body, front_wheel, (128, 0), (0, 0),42, 48
         )
         front_wheel_slide_joint = pm.constraints.SlideJoint(
-            truck_body, truck_front_wheel, (74, 20), (0, 0), 30, 35
+            body, front_wheel, (99, 0), (0, 0), 30, 35
         )
         self._space.add(back_wheel_dspring_1)
         self._space.add(back_wheel_dspring_2)

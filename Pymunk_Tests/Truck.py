@@ -13,6 +13,7 @@ class Truck(Car):
         self.y_pos = y_pos
         self.body = None
         self.wheels = []
+        self.wheel_turn_force = 50000
 
     def create_body_wheels(self):
         w = 250
