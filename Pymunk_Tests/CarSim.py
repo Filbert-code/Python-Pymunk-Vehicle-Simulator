@@ -19,12 +19,12 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH + 400, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
         self._clock = pg.time.Clock()
 
         # pymunk space
         self._space = pm.Space()
-        self._space.gravity = (0, 981.0)
+        self._space.gravity = (0, 0.0)
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
 
@@ -45,10 +45,10 @@ class PhysicsSim:
         self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
 
         # SPAWN STUFF
-        self._car = Truck(self._space, 300, 300)
+        # self._car = Truck(self._space, 300, 300)
+        # self._car.build()
+        self._car = Sportscar(self._space, 300, 350)
         self._car.build()
-        # sportscar = Sportscar(self._space, 300, 350)
-        # self._car = sportscar.build()
 
         self._create_road()
 
@@ -96,9 +96,9 @@ class PhysicsSim:
         draws pygame objects/shapes
         :return:
         """
-        # self._space.debug_draw(self._draw_options)
-        self._draw_road()
-        self._draw_car()
+        self._space.debug_draw(self._draw_options)
+        # self._draw_road()
+        # self._draw_car()
 
     def _process_time(self):
         """
