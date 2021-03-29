@@ -20,7 +20,7 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH + 400, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH + 2600, constants.HEIGHT))
         self._clock = pg.time.Clock()
 
         # pymunk space
@@ -51,8 +51,8 @@ class PhysicsSim:
         self._car = Sportscar(self._space, 200, 350)
         self._car.build()
 
-        obc = ObstacleCourse(self._space)
-        obc.build()
+        self.obc = ObstacleCourse(self._space)
+        self.obc.build()
         # self._create_road()
 
         # Execution control
@@ -126,6 +126,8 @@ class PhysicsSim:
             # exit the window with the escape key
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 self._running = False
+            elif event.type == pg.KEYDOWN and event.key == pg.K_r:
+                self._space.remove(self.obc.spring_trap_pin)
 
     def _clear_screen(self):
         """

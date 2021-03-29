@@ -25,7 +25,7 @@ class RoadBuilder:
 
         self._space.add(static_body)
         self._space.add(*static_segments)
-        return static_segments
+        return static_body, static_segments
 
     def random_terrain_vertices_generator(self, vs, length, total_segments):
         """
