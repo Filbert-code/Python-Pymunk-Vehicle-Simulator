@@ -46,7 +46,7 @@ class PhysicsSim:
         self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
 
         # SPAWN STUFF
-        # self._car = Truck(self._space, 100, 300)
+        # self._car = Truck(self._space, 200, 300)
         # self._car.build()
         self._car = Sportscar(self._space, 200, 350)
         self._car.build()

@@ -22,14 +22,16 @@ class ObstacleCourse:
         # first line of boxes
         # mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9
         fort_height = 0
-        radius = 50
+        radius = 35
         starting_pos = 50
         fort_length = 350
         for i in range(10):
-            c.create_poly(50, 50, constants.HEIGHT - radius * i, radius, radius)
-            c.create_poly(50, 50 + fort_length, constants.HEIGHT - radius * i, radius, radius)
+            c.create_poly(50, 50, constants.HEIGHT - radius * i, radius, radius, friction=1)
+            c.create_poly(50, 50 + fort_length, constants.HEIGHT - radius * i, radius, radius, friction=1)
             fort_height = constants.HEIGHT - radius * i
-        vs = [((starting_pos, fort_height), (starting_pos + fort_length, fort_height))]
+        left = (starting_pos, fort_height)
+        right = (starting_pos + fort_length, fort_height)
+        c.create_poly(200, starting_pos + fort_length / 2, fort_height - radius, fort_length, 35)
 
 
 
