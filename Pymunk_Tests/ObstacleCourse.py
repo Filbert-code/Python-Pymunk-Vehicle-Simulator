@@ -36,18 +36,20 @@ class ObstacleCourse:
     def _spring_trap(self):
         # create the spring body
         mass = 500
-        width, length = 300, 0.0001
+        width, length = 250, 0.01
         body, shape = self._c.create_poly(mass, 800, 595, width, length)
-
         # create the springs
+        x, y = (800, 600)
         strength = 200000
-        spring_1 = pm.constraints.DampedSpring(body, self._road_body, (0, 0), (800, 620), 100, strength, 1)
-        spring_2 = pm.constraints.DampedSpring(body, self._road_body, (-50, 0), (750, 620), 100, strength, 1)
-        spring_3 = pm.constraints.DampedSpring(body, self._road_body, (50, 0), (850, 620), 100, strength, 1)
-        self.spring_trap_pin = pm.constraints.PinJoint(body, self._road_body, (0, 0), (800, 600))
-        self._space.add(spring_1)
-        self._space.add(spring_2)
-        self._space.add(spring_3)
+        rest_length = 100
+        spring_1 = pm.constraints.DampedSpring(body, self._road_body, (0, 0), (x, y + 20), rest_length, strength, 1)
+        spring_2 = pm.constraints.DampedSpring(body, self._road_body, (-50, 0), (x - 50, y + 20), rest_length, strength, 1)
+        spring_3 = pm.constraints.DampedSpring(body, self._road_body, (50, 0), (x + 50, y + 20), rest_length, strength, 1)
+        # create stabilizer slider joints
+        stabilizer_1 = pm.constraints.SlideJoint(body, self._road_body, (-75, 0), (x + 75, y + 20), 0, 180)
+        stabilizer_2 = pm.constraints.SlideJoint(body, self._road_body, (75, 0), (x - 75, y + 20), 0, 180)
+        self.spring_trap_pin = pm.constraints.PinJoint(body, self._road_body, (0, 0), (x, y))
+        self._space.add(spring_1, spring_2, spring_3, stabilizer_1, stabilizer_2)
         self._space.add(self.spring_trap_pin)
 
     def build(self):
