@@ -28,6 +28,8 @@ class PhysicsSim:
         self._space.gravity = (0, 981.0)
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
+        # only draws shapes, no constraints or joints
+        self._draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
 
         # Physics
         # Time step
@@ -41,6 +43,7 @@ class PhysicsSim:
 
         # bodies of road segments
         self._static_segments = []
+        self._dyn_polys = []
 
         wheel_image = pg.image.load("mr_car_wheel.png")
         self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
@@ -51,9 +54,11 @@ class PhysicsSim:
         self._car = Sportscar(self._space, 200, 350)
         self._car.build()
 
-        self.obc = ObstacleCourse(self._space)
-        self.obc.build()
-        # self._create_road()
+        # declare obstacle course
+        self._obc = None
+        self._create_obstacle_course()
+
+        # self._create_random_generated_road()
 
         # Execution control
         self._running = True
@@ -104,8 +109,9 @@ class PhysicsSim:
         :return:
         """
         self._space.debug_draw(self._draw_options)
-        # self._draw_road()
-        # self._draw_car()
+        self._draw_road()
+        self._draw_dynamic_bodies()
+        self._draw_car()
 
     def _process_time(self):
         """
@@ -127,7 +133,7 @@ class PhysicsSim:
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 self._running = False
             elif event.type == pg.KEYDOWN and event.key == pg.K_r:
-                self._space.remove(self.obc.spring_trap_pin)
+                self._space.remove(self._obc.spring_trap_pin)
 
     def _clear_screen(self):
         """
@@ -185,6 +191,31 @@ class PhysicsSim:
             # draw the car body onto the screen
             self._screen.blit(image, rect)
 
+    def _draw_dynamic_bodies(self):
+        """
+        Blitting the dynamic objects of levels
+        :param bodies: pymunk bodies
+        :return: None
+        """
+        car_centerx = self._car.body.position[0]
+        for poly in self._dyn_polys:
+            # get rotation of the car body or wheel
+            body_rot = -math.degrees(poly.angle)
+            image = pg.transform.rotate(self._obc.box_fort_image, body_rot)
+
+            # shift the blit of the poly relative to the player's movement
+            if car_centerx >= 400:
+                center = (poly.position[0] - car_centerx + 400 - image.get_width()/2.0, poly.position[1])
+                rect = image.get_rect(center=center)
+                self._screen.blit(image, rect)
+                # pg.draw.rect(self._screen, (0, 0, 255), rect)
+            else:
+                center = (poly.position[0], poly.position[1])
+                # image = pg.transform.rotate(self._obc.box_fort_image, car_body_rot)
+                rect = image.get_rect(center=center)
+                self._screen.blit(image, rect)
+                # pg.draw.rect(self._screen, (0, 0, 255), rect)
+
     def _create_poly(self, x_pos, y_pos, w, h):
         """
         Create a polygon. Used to make the body of the car.
@@ -229,17 +260,34 @@ class PhysicsSim:
         self._space.add(body, shape)
         return body, shape
 
-    def _create_road(self):
+    def _create_road(self, static_segs):
         """
         Create a road for the car using Pymunk Segments. Every Segment is static; meaning they can't move.
         :return: None
         """
         # use RoadBuilder class to build a road and return the Segments of that road
-        rb = RoadBuilder(self._space)
-        vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 100, 80)
-        static_segs = rb.build_road(vertices, 5)
         for seg in static_segs:
             self._static_segments.append(seg)
+
+    def _create_random_generated_road(self):
+        """
+        Create a randomly generated road from the random_terrian... class
+        :return:
+        """
+        rb = RoadBuilder(self._space)
+        vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 100, 80)
+        body, static_segs = rb.build_road(vertices, 5)
+        self._create_road(static_segs)
+
+    def _create_obstacle_course(self):
+        """
+        Create an obstacle course road and features
+        :return:
+        """
+        self._obc = ObstacleCourse(self._space)
+        self._dyn_polys, static_segs = self._obc.build()
+        self._create_road(static_segs)
+
 
     def _create_car(self):
         """

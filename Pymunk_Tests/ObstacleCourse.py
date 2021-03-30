@@ -13,10 +13,18 @@ class ObstacleCourse:
         self._c = Car(self._space)
         self._road_body = None
         self.spring_trap_pin = None
+        self.dynamic_bodies = []
+        self.box_fort_image = pg.image.load("images/box_fort_img.png")
 
     def _create_road(self):
-        vs = [((0, constants.HEIGHT), (2000, constants.HEIGHT))]
+        vs = [((0, constants.HEIGHT), (2000, constants.HEIGHT)), ((2000, constants.HEIGHT), (2200, constants.HEIGHT-50)),
+              ((2200, constants.HEIGHT-50), (2400, constants.HEIGHT-200)),
+              ((3400, constants.HEIGHT-150), (3600, constants.HEIGHT-75)),
+              ((3600, constants.HEIGHT - 75), (3800, constants.HEIGHT)),
+              ((3800, constants.HEIGHT), (5000, constants.HEIGHT)),
+              ]
         self._road_body, segments = self._rb.build_road(vs, 5)
+        return segments
 
     def _box_fort(self):
         # first line of boxes
@@ -25,13 +33,15 @@ class ObstacleCourse:
         radius = 35
         starting_pos = 50
         fort_length = 350
+        color = (50, 120, 240, 255)  # blue
         for i in range(10):
-            self._c.create_poly(50, 50, constants.HEIGHT - radius * i, radius, radius, friction=1)
-            self._c.create_poly(50, 50 + fort_length, constants.HEIGHT - radius * i, radius, radius, friction=1)
+            b1, s1 = self._c.create_poly(50, 50, constants.HEIGHT - radius * i, radius, radius, friction=1, color=color)
+            b2, s2 = self._c.create_poly(50, 50 + fort_length, constants.HEIGHT - radius * i, radius, radius, friction=1, color=color)
             fort_height = constants.HEIGHT - radius * i
-        left = (starting_pos, fort_height)
-        right = (starting_pos + fort_length, fort_height)
-        self._c.create_poly(200, starting_pos + fort_length / 2, fort_height - radius, fort_length, 35)
+            self.dynamic_bodies.append(b1)
+            self.dynamic_bodies.append(b2)
+        b, s = self._c.create_poly(200, starting_pos + fort_length / 2, fort_height - radius, fort_length, 35, color=color)
+        self.dynamic_bodies.append(b)
 
     def _spring_trap(self):
         # create the spring body
@@ -53,6 +63,7 @@ class ObstacleCourse:
         self._space.add(self.spring_trap_pin)
 
     def build(self):
-        self._create_road()
-        # self._box_fort()
+        segments = self._create_road()
+        self._box_fort()
         self._spring_trap()
+        return self.dynamic_bodies, segments

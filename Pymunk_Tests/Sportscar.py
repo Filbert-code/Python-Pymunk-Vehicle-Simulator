@@ -32,7 +32,7 @@ class Sportscar(Car):
         car_shape_1 = pm.Poly(self.body, vs, radius=1)
         vs = [(73, -13), (73, 0), (91, -12), (130, -9), (130, 0)]
         car_shape_2 = pm.Poly(self.body, vs, radius=1)
-        vs = [(130, -9), (130, 0), (146, 3), (147, 34), (130, 34)]
+        vs = [(130, -9), (130, 0), (146, 3), (152, 34), (130, 34)]
         car_shape_3 = pm.Poly(self.body, vs, radius=1)
         vs = [(-25, -35), (-37, 0), (-88, -16), (-88, 0)]
         car_shape_4 = pm.Poly(self.body, vs, radius=1)
@@ -55,8 +55,8 @@ class Sportscar(Car):
 
         # create car wheels
         # mass, x_pos, y_pos, radius, elasticity=0.3, friction=0.9
-        back_wheel, shape = self._create_wheel(200, self.x_pos - 63, self.y_pos + 27, 21)
-        front_wheel, shape = self._create_wheel(200, self.x_pos + 99, self.y_pos + 27, 21)
+        back_wheel, shape = self._create_wheel(200, self.x_pos - 63, self.y_pos + 27, 21, friction=1)
+        front_wheel, shape = self._create_wheel(200, self.x_pos + 99, self.y_pos + 27, 21, friction=1)
         self.wheels.append(back_wheel)
         self.wheels.append(front_wheel)
         self.create_wheel_contraints(self.body, self.wheels[0], self.wheels[1])

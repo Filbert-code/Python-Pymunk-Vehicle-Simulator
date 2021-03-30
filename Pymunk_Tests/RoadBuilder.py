@@ -8,8 +8,9 @@ class RoadBuilder:
     def __init__(self, space):
         self._space = space
 
-    def build_road(self, vs, radius):
+    def build_road(self, vs, radius, color=(0, 0, 0, 0)):
         """
+        :param color: color of the road
         :param vs: Vertices that make up the roads
         :param radius: radius of the road Segments
         :return: The road Segment objects
@@ -21,6 +22,7 @@ class RoadBuilder:
             seg = pm.Segment(static_body, v[0], v[1], radius)
             seg.elasticity = 0.10
             seg.friction = 0.90
+            seg.color = color
             static_segments.append(seg)
 
         self._space.add(static_body)
