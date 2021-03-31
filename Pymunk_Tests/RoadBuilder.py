@@ -42,7 +42,7 @@ class RoadBuilder:
         # starting from 1 to be able to append new vertices to the vertices list that already contains 1
         for seg_num in range(1, total_segments*2):
             # most steep : 1, very flat: > 2
-            steepness = 10
+            steepness = 2
             # x-value has to be the same every other point to make the segments connect
             if seg_num % 2 == 1:
                 delta_y = randrange(int(-length/steepness), int(length/steepness))
