@@ -49,14 +49,13 @@ class ObstacleCourse:
         self.polys[image1] = list_of_bodies
         self.polys[image2] = [b]
 
-
     def _spring_trap(self):
         # create the spring body
         mass = 500
         width, length = 250, 10
-        body, shape = self._c.create_poly(mass, 800, 595, width, length)
+        body, shape = self._c.create_poly(mass, 800, 715, width, length)
         # create the springs
-        x, y = (800, 600)
+        x, y = (800, 720)
         strength = 200000
         rest_length = 100
         spring_1 = pm.constraints.DampedSpring(body, self._road_body, (0, 0), (x, y + 20), rest_length, strength, 1)

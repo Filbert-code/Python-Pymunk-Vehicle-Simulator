@@ -48,8 +48,8 @@ class Truck(Car):
         self._space.add(truck_shape_6)
 
         # mass, x_pos, y_pos, radius, elasticity=0.3, friction=0.9
-        back_wheel, shape = self._create_wheel(200, self.x_pos - 79, self.y_pos + 25, 21)
-        front_wheel, shape = self._create_wheel(200, self.x_pos + 74, self.y_pos + 25, 21)
+        back_wheel, shape = self._create_wheel(200, self.x_pos - 79, self.y_pos + 48, 21)
+        front_wheel, shape = self._create_wheel(200, self.x_pos + 74, self.y_pos + 48, 21)
         self.wheels.append(back_wheel)
         self.wheels.append(front_wheel)
         self.create_wheel_contraints(self.body, back_wheel, front_wheel)
