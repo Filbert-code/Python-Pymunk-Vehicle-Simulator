@@ -53,7 +53,7 @@ class PhysicsSim:
 
         # SPAWN STUFF
         # self._car = Sportscar(self._space, 200, 550)
-        self._car = Tank(self._space, constants.WIDTH/2, constants.HEIGHT/2)
+        self._car = Tank(self._space, constants.WIDTH/2-200, constants.HEIGHT-50)
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
@@ -171,6 +171,8 @@ class PhysicsSim:
                     self._state = self._menu_state
                 elif event.type == pg.KEYDOWN and event.key == pg.K_r:
                     self._space.remove(self._obc.spring_trap_pin)
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    print(pg.mouse.get_pos())
             # menu event handler
             elif self._state == self._menu_state:
                 if event.type == pg.KEYDOWN and event.key == pg.K_m:

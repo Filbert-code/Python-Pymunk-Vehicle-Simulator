@@ -1,4 +1,5 @@
 import pymunk as pm
+import math
 
 
 class Car:
@@ -24,7 +25,7 @@ class Car:
         self._space.add(body, shape)
         return body, shape
 
-    def create_poly(self, mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9, color=None):
+    def create_poly(self, mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9, color=None, rot=0):
         """
         Create a polygon. Used to make the body of the car.
         :return: Body and Shape objects
@@ -38,10 +39,11 @@ class Car:
         # polygon body
         body = pm.Body(mass, inertia)
         # connect the vertices to the body
-        shape = pm.Poly(body, vs, radius=1)
+        shape = pm.Poly(body, vs, radius=1, transform=pm.Transform.rotation(rot))
         # shape2 = pm.Circle(body, 50, (100, 0))
         # position to print onto screen
         body.position = x_pos, y_pos
+
         shape.elasticity = elasticity
         shape.friction = friction
         shape.filter = pm.ShapeFilter(categories=0b1000)
