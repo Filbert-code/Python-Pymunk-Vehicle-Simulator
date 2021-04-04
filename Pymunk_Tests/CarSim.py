@@ -26,11 +26,11 @@ class PhysicsSim:
 
         # pymunk space
         self._space = pm.Space()
-        self._space.gravity = (0, 0.0)
+        self._space.gravity = (0, 981.0)
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
         # only draws shapes, no constraints or joints
-        # self._draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
+        self._draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
 
         # Physics
         # Time step
