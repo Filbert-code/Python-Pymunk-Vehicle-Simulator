@@ -21,12 +21,12 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH+640, constants.HEIGHT+360))
         self._clock = pg.time.Clock()
 
         # pymunk space
         self._space = pm.Space()
-        self._space.gravity = (0, 981.0)
+        self._space.gravity = (0, 0.0)
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
         # only draws shapes, no constraints or joints
