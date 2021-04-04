@@ -5,6 +5,7 @@ from RoadBuilder import RoadBuilder
 from ObstacleCourse import ObstacleCourse
 from Truck import Truck
 from Sportscar import Sportscar
+from Tank import Tank
 from Menu import Menu
 
 # Library imports
@@ -51,7 +52,8 @@ class PhysicsSim:
         self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
 
         # SPAWN STUFF
-        self._car = Sportscar(self._space, 200, 550)
+        # self._car = Sportscar(self._space, 200, 550)
+        self._car = Tank(self._space, constants.WIDTH/2, constants.HEIGHT/2)
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
@@ -121,25 +123,27 @@ class PhysicsSim:
                 self._car.wheels[0].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
             # all wheel drive
             if self._car.all_wheel_drive:
-                if self._car.wheels[1].velocity.int_tuple[0] < self._car.max_speed:
-                    self._car.wheels[1].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
+                for i in range(1, len(self._car.wheels)):
+                    if self._car.wheels[i].velocity.int_tuple[0] < self._car.max_speed:
+                        self._car.wheels[i].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
         # going backward
         if keys[pg.K_a]:
             if self._car.wheels[0].velocity.int_tuple[0] > -self._car.max_speed:
                 self._car.wheels[0].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
             if self._car.all_wheel_drive:
-                if self._car.wheels[1].velocity.int_tuple[0] > -self._car.max_speed:
-                    self._car.wheels[1].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
+                for i in range(1, len(self._car.wheels)):
+                    if self._car.wheels[i].velocity.int_tuple[0] > -self._car.max_speed:
+                        self._car.wheels[i].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
 
     def _draw(self):
         """
         draws pygame objects/shapes
         :return:
         """
-        # self._space.debug_draw(self._draw_options)
-        self._draw_road()
-        self._draw_polys()
-        self._draw_car()
+        self._space.debug_draw(self._draw_options)
+        # self._draw_road()
+        # self._draw_polys()
+        # self._draw_car()
 
     def _process_time(self):
         """
