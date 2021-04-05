@@ -30,7 +30,7 @@ class PhysicsSim:
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
         # only draws shapes, no constraints or joints
-        self._draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
+        # self._draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
 
         # Physics
         # Time step
@@ -127,13 +127,39 @@ class PhysicsSim:
                     if self._car.wheels[i].velocity.int_tuple[0] < self._car.max_speed:
                         self._car.wheels[i].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
         # going backward
-        if keys[pg.K_a]:
+        elif keys[pg.K_a]:
             if self._car.wheels[0].velocity.int_tuple[0] > -self._car.max_speed:
                 self._car.wheels[0].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
             if self._car.all_wheel_drive:
                 for i in range(1, len(self._car.wheels)):
                     if self._car.wheels[i].velocity.int_tuple[0] > -self._car.max_speed:
                         self._car.wheels[i].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
+
+        # no keys are pressed, slow down the wheels
+        else:
+            x_vel = self._car.wheels[0].velocity.int_tuple[0]
+            if x_vel > 5:
+                self._car.wheels[0].apply_force_at_world_point((-5000, 6), (0, 0))
+            elif x_vel < -5:
+                self._car.wheels[0].apply_force_at_world_point((5000, 6), (0, 0))
+            if self._car.all_wheel_drive:
+                for i in range(1, len(self._car.wheels)):
+                    if x_vel > 5:
+                        self._car.wheels[i].apply_force_at_world_point((-5000, 6), (0, 0))
+                    elif x_vel < -5:
+                        self._car.wheels[i].apply_force_at_world_point((5000, 6), (0, 0))
+        # updating the angle of the tank turret
+        wheel = self._car.turret_wheel
+        if keys[pg.K_w]:
+            if self._car.turret_wheel:
+                wheel.angle -= 2
+                self._car.turret_wheel_angle -= 2
+        elif keys[pg.K_s]:
+            if self._car.turret_wheel:
+                wheel.angle += 2
+                self._car.turret_wheel_angle += 2
+        else:
+            wheel.angle = self._car.turret_wheel_angle + self._car.body.angle*300
 
     def _draw(self):
         """

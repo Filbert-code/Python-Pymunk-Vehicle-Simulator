@@ -8,6 +8,7 @@ class Car:
     """
     def __init__(self, space):
         self._space = space
+        self.turret_wheel = None
 
     def _create_wheel(self, mass, x_pos, y_pos, radius, elasticity=0.1, friction=0.9):
         """
