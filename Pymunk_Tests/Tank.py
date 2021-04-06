@@ -17,17 +17,25 @@ class Tank(Car):
         self.y_pos = y_pos
         self.body = None
         self.wheels = []
+        self.wheel_offset = (-20, 0)
         self.wheel_turn_force = 30000
         self.max_speed = 150
         self.all_wheel_drive = True
         self._track_posx = x_pos - 100
         self._track_posy = y_pos
+        self._tracks = []
+        self._special_tracks = []
         self.turret = None
         self.turret_shape = None
         self.turret_wheel_angle = 0
+        self.bullets = []
         self.image = pg.image.load("images/Tank.png")
         self.image = pg.transform.scale(self.image, (441, 100))
+        self.image_offset = (-20, 15)
         self.barrel_image = pg.image.load("images/Tank Barrel.png")
+        self.barrel_image = pg.transform.scale(self.barrel_image, (215, 20))
+        self.track_image = pg.image.load("images/track.png")
+        self.bullet_image = pg.image.load("images/bullet_image.png")
         # self.image = pg.image.load("images/")
         # offset for the center of the car
 
@@ -45,7 +53,6 @@ class Tank(Car):
         h = 4
         mass = 200
         shape_filter = pm.ShapeFilter(categories=0b1000)
-        print(self._track_posx, self._track_posy)
         tank_body, shape = self.create_poly(5000, self._track_posx + 140, self._track_posy-80, 90, 40, elasticity=0)
         w2, h2 = 180, 40
         vs = [(-w2 / 2, -h2 / 2), (w2 / 2, -h2 / 2), (w2 / 2, h2 / 2), (-w2 / 2, h2 / 2)]
@@ -66,30 +73,34 @@ class Tank(Car):
         for num in range(22):
             body, shape = self.create_poly(mass, self._track_posx-25 + num*14, self._track_posy, w, h, elasticity=0)
             track_bodies_bottom.append(body)
+            self._tracks.append(body)
         end_point_1 = self.create_track_constraints(track_bodies_bottom, offset=(-25, 0))
         track_bodies_top = []
         for num in range(26):
             body, shape = self.create_poly(mass, self._track_posx-50 + num * 14, self._track_posy-40, w, h, elasticity=0)
             track_bodies_top.append(body)
+            self._tracks.append(body)
         end_point_2 = self.create_track_constraints(track_bodies_top, offset=(-50, -40))
 
         body1, shape = self.create_poly(mass, self._track_posx+304, self._track_posy-31, w+2, h, rot=11*math.pi/16, elasticity=0)
         track_constraint1 = pm.constraints.PivotJoint(body1, track_bodies_top[-1] , (self._track_posx+307, self._track_posy-39))
-        body2 , shape = self.create_poly(mass, self._track_posx+295, self._track_posy-18, w+2, h, rot=12*math.pi/16, elasticity=0)
+        body2 , shape = self.create_poly(mass, self._track_posx+295, self._track_posy-18, w+2, h, rot=11*math.pi/16, elasticity=0)
         track_constraint2 = pm.constraints.PivotJoint(body1, body2, (self._track_posx+302, self._track_posy-24))
-        body3, shape = self.create_poly(mass, self._track_posx + 284, self._track_posy - 5, w+2, h,rot=12 * math.pi / 16, elasticity=0)
+        body3, shape = self.create_poly(mass, self._track_posx + 284, self._track_posy - 5, w+2, h,rot=11 * math.pi / 16, elasticity=0)
         track_constraint3 = pm.constraints.PivotJoint(body2, body3, (self._track_posx + 290, self._track_posy - 11))
         track_constraint4 = pm.constraints.PivotJoint(body3, track_bodies_bottom[-1], (self._track_posx+280, self._track_posy))
         self._space.add(track_constraint1, track_constraint2, track_constraint3, track_constraint4)
+        self._tracks.append(body1), self._tracks.append(body2), self._tracks.append(body3)
 
         body1, shape = self.create_poly(mass, self._track_posx-57, self._track_posy-32, w, h, rot=-11 * math.pi / 16, elasticity=0)
         track_constraint1 = pm.constraints.PivotJoint(body1, track_bodies_top[0], (self._track_posx-59, self._track_posy-39))
-        body2, shape = self.create_poly(mass, self._track_posx-48, self._track_posy-21, w, h, rot=-12 * math.pi / 16, elasticity=0)
+        body2, shape = self.create_poly(mass, self._track_posx-48, self._track_posy-21, w, h, rot=-11 * math.pi / 16, elasticity=0)
         track_constraint2 = pm.constraints.PivotJoint(body1, body2, (self._track_posx-53, self._track_posy-26))
         body3, shape = self.create_poly(mass, self._track_posx-38, self._track_posy-8, w+2, h, rot=-11 * math.pi / 16, elasticity=0)
         track_constraint3 = pm.constraints.PivotJoint(body2, body3, (self._track_posx-40, self._track_posy-13))
         track_constraint4 = pm.constraints.PivotJoint(body3, track_bodies_bottom[0], (self._track_posx-32, self._track_posy))
         self._space.add(track_constraint1, track_constraint2, track_constraint3, track_constraint4)
+        self._tracks.append(body1), self._tracks.append(body2), self._tracks.append(body3)
 
         x, y = self._track_posx, self._track_posy
         # mass, x_pos, y_pos, radius, elasticity=0.3, friction=0.9
@@ -181,7 +192,7 @@ class Tank(Car):
         # self._space.add(small_const5, small_const6, small_const7, small_const8)
         self._space.add(small_const9, small_const10, small_const11, small_const12)
         self._space.add(small_const13, small_const14, small_const15, small_const16)
-        self._space.add( const1, const2, const3, const4, const5, const6, const7)
+        self._space.add(const1, const2, const3, const4, const5, const6, const7)
         self._space.add(const8, const9, const10, const11, const12, const13, const14, const15, const16)
         self._space.add(const17, const18, const19)
         self._space.add(const20, const21, const22)
@@ -221,6 +232,7 @@ class Tank(Car):
         bullet.torque = 5000
         # disallows a collision between the bullet and the turret
         shape.filter = pm.ShapeFilter(5)
+        self.bullets.append(bullet)
         self.turret_shape.filter = pm.ShapeFilter(5)
 
     def update(self):
@@ -252,6 +264,38 @@ class Tank(Car):
                 self.turret_wheel_angle += 2
         else:
             wheel.angle = self.turret_wheel_angle + self.body.angle * 300
+
+    def draw(self):
+        barrel_center = self.turret.position
+        image = pg.transform.rotate(self.barrel_image, -math.degrees(self.turret.angle))
+        rect = image.get_rect(center=image.get_rect(center=barrel_center).center)
+        # shift the x-pos of the wheel by (x-cord of the car body) - 400
+        if self.body.position[0] > 420:
+            rect.centerx -= self.body.position[0] - 420
+        # draw the car body onto the screen
+        self._screen.blit(image, rect)
+        for track in self._tracks:
+            center = track.position
+            # get the angle of the track
+            image = pg.transform.rotate(self.track_image, -math.degrees(track.angle))
+            # get the pygame Rect of the track
+            rect = image.get_rect(center=image.get_rect(center=center).center)
+            # blit the image
+            if self.body.position[0] > 420:
+                rect.centerx -= self.body.position[0] - 420
+            # draw the car body onto the screen
+            self._screen.blit(image, rect)
+        for bullet in self.bullets:
+            center = bullet.position[0] + 4, bullet.position[1]
+            # get the angle of the track
+            image = pg.transform.rotate(self.bullet_image, -math.degrees(bullet.angle))
+            # get the pygame Rect of the track
+            rect = image.get_rect(center=image.get_rect(center=center).center)
+            # blit the image
+
+            # draw the car body onto the screen
+            self._screen.blit(image, rect)
+        super().draw()
 
     def build(self):
         # self.create_static_segment(

@@ -13,8 +13,10 @@ class Car:
         self.turret_wheel = None
         self.wheels = []
         self.wheel_image = pg.transform.scale(pg.image.load("mr_car_wheel.png"), (42, 42))
+        self.wheel_offset = (0, 0)
         self.body = None
         self.image = None
+        self.image_offset = (0, 0)
         self.wheel_turn_force = 10000  # default wheel turn force
         self.max_speed = 100  # default max speed
         self.all_wheel_drive = False  # default all-wheel drive setting
@@ -48,8 +50,9 @@ class Car:
         inertia = pm.moment_for_poly(mass, vs, (0, 0), radius=radius)
         # polygon body
         body = pm.Body(mass, inertia)
+        body.angle = rot
         # connect the vertices to the body
-        shape = pm.Poly(body, vs, radius=1, transform=pm.Transform.rotation(rot))
+        shape = pm.Poly(body, vs, radius=1)
         # shape2 = pm.Circle(body, 50, (100, 0))
         # position to print onto screen
         body.position = x_pos, y_pos
@@ -97,10 +100,11 @@ class Car:
             rot = -math.degrees(self.wheels[i].angle)
             # grab loaded image
             image = pg.transform.rotate(self.wheel_image, rot)
-            rect = image.get_rect(center=image.get_rect(center=self.wheels[i].position).center)
+            center = self.wheels[i].position
+            rect = image.get_rect(center=image.get_rect(center=center).center)
             # shift the x-pos of the wheel by (x-cord of the car body) - 400
-            if car_body_center[0] > 400:
-                rect.centerx -= car_body_center[0] - 400
+            if car_body_center[0] > 400 + -self.wheel_offset[0]:
+                rect.centerx -= car_body_center[0] - 400 + self.wheel_offset[0]
             # draw the car body onto the screen
             self._screen.blit(image, rect)
         # get rotation of the car body or wheel
@@ -108,7 +112,7 @@ class Car:
         # grab loaded image
         image = pg.transform.rotate(self.image, car_body_rot)
         center = image.get_rect(center=car_body_center).center
-        car_body_rect = image.get_rect(center=(center[0]-20, center[1]+15))
+        car_body_rect = image.get_rect(center=(center[0]+self.image_offset[0], center[1]+self.image_offset[1]))
         if car_body_rect.centerx > 400:
             car_body_rect.centerx = 400
         # draw the car body onto the screen in front of the wheels

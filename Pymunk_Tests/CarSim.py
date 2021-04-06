@@ -49,8 +49,9 @@ class PhysicsSim:
         self._polys = {}
 
         # SPAWN STUFF
-        self._car = Sportscar(self._space, self._screen, 200, 550)
-        # self._car = Tank(self._space, self._screen, constants.WIDTH/2-200, constants.HEIGHT-50)
+        # self._car = Truck(self._space, self._screen, 200, 550)
+        # self._car = Sportscar(self._space, self._screen, 200, 550)
+        self._car = Tank(self._space, self._screen, constants.WIDTH/2-200, constants.HEIGHT-50)
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
@@ -210,10 +211,10 @@ class PhysicsSim:
         self._space = pm.Space()
         self._space.gravity = (0, 981.0)
         if self._menu.current_car == 0:
-            self._car = Sportscar(self._space, 200, 550)
+            self._car = Sportscar(self._space, self._space, 200, 550)
             self._active_car = 0
         else:
-            self._car = Truck(self._space, 200, 550)
+            self._car = Truck(self._space, self._screen, 200, 550)
             self._active_car = 1
         self._car.build()
         if self._menu.current_level == 0:
@@ -234,9 +235,9 @@ class PhysicsSim:
         self._space = pm.Space()
         self._space.gravity = (0, 981.0)
         if self._active_car == 0:
-            self._car = Sportscar(self._space, 200, 550)
+            self._car = Sportscar(self._space, self._screen, 200, 550)
         else:
-            self._car = Truck(self._space, 200, 550)
+            self._car = Truck(self._space, self._screen, 200, 550)
         self._car.build()
         if self._active_level == 0:
             self._create_obstacle_course()
