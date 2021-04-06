@@ -6,11 +6,12 @@ import constants
 
 
 class ObstacleCourse:
-    def __init__(self, space, polys):
+    def __init__(self, space, screen, polys):
         self._space = space
+        self._screen = screen
         self._rb = rb = RoadBuilder(self._space)
         # create a Car instance to use it's box creation function
-        self._c = Car(self._space)
+        self._c = Car(self._space, screen)
         self._road_body = None
         self.spring_trap_pin = None
         self.polys = polys

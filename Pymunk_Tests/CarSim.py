@@ -26,7 +26,7 @@ class PhysicsSim:
 
         # pymunk space
         self._space = pm.Space()
-        self._space.gravity = (0, 0.0)
+        self._space.gravity = (0, 981.0)
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
         # only draws shapes, no constraints or joints
@@ -48,12 +48,9 @@ class PhysicsSim:
         # but number of bodies must match vertices
         self._polys = {}
 
-        wheel_image = pg.image.load("mr_car_wheel.png")
-        self._car_images_original = [pg.image.load("mr_car.png"), pg.transform.scale(wheel_image, (42, 42))]
-
         # SPAWN STUFF
-        # self._car = Sportscar(self._space, 200, 550)
-        self._car = Tank(self._space, constants.WIDTH/2-200, constants.HEIGHT-50)
+        self._car = Sportscar(self._space, self._screen, 200, 550)
+        # self._car = Tank(self._space, self._screen, constants.WIDTH/2-200, constants.HEIGHT-50)
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
@@ -115,51 +112,7 @@ class PhysicsSim:
         Updates the states of all objects and the screen
         :return:
         """
-        keys = pg.key.get_pressed()
-        # going forward
-        if keys[pg.K_d]:
-            # limiting velocity to 500
-            if self._car.wheels[0].velocity.int_tuple[0] < self._car.max_speed:
-                self._car.wheels[0].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
-            # all wheel drive
-            if self._car.all_wheel_drive:
-                for i in range(1, len(self._car.wheels)):
-                    if self._car.wheels[i].velocity.int_tuple[0] < self._car.max_speed:
-                        self._car.wheels[i].apply_force_at_world_point((self._car.wheel_turn_force, 12), (0, 0))
-        # going backward
-        elif keys[pg.K_a]:
-            if self._car.wheels[0].velocity.int_tuple[0] > -self._car.max_speed:
-                self._car.wheels[0].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
-            if self._car.all_wheel_drive:
-                for i in range(1, len(self._car.wheels)):
-                    if self._car.wheels[i].velocity.int_tuple[0] > -self._car.max_speed:
-                        self._car.wheels[i].apply_force_at_world_point((-self._car.wheel_turn_force, 12), (0, 0))
-
-        # no keys are pressed, slow down the wheels
-        else:
-            x_vel = self._car.wheels[0].velocity.int_tuple[0]
-            if x_vel > 5:
-                self._car.wheels[0].apply_force_at_world_point((-5000, 6), (0, 0))
-            elif x_vel < -5:
-                self._car.wheels[0].apply_force_at_world_point((5000, 6), (0, 0))
-            if self._car.all_wheel_drive:
-                for i in range(1, len(self._car.wheels)):
-                    if x_vel > 5:
-                        self._car.wheels[i].apply_force_at_world_point((-5000, 6), (0, 0))
-                    elif x_vel < -5:
-                        self._car.wheels[i].apply_force_at_world_point((5000, 6), (0, 0))
-        # updating the angle of the tank turret
-        wheel = self._car.turret_wheel
-        if keys[pg.K_w]:
-            if self._car.turret_wheel:
-                wheel.angle -= 2
-                self._car.turret_wheel_angle -= 2
-        elif keys[pg.K_s]:
-            if self._car.turret_wheel:
-                wheel.angle += 2
-                self._car.turret_wheel_angle += 2
-        else:
-            wheel.angle = self._car.turret_wheel_angle + self._car.body.angle*300
+        self._car.update()
 
     def _draw(self):
         """
@@ -169,7 +122,7 @@ class PhysicsSim:
         self._space.debug_draw(self._draw_options)
         # self._draw_road()
         # self._draw_polys()
-        # self._draw_car()
+        self._car.draw()
 
     def _process_time(self):
         """
@@ -197,8 +150,10 @@ class PhysicsSim:
                     self._state = self._menu_state
                 elif event.type == pg.KEYDOWN and event.key == pg.K_r:
                     self._space.remove(self._obc.spring_trap_pin)
+                # check if a Tank has been instantiated and fire a shot
                 elif event.type == pg.MOUSEBUTTONDOWN:
-                    print(pg.mouse.get_pos())
+                    if isinstance(Tank, type):
+                        self._car.shoot_projectile()
             # menu event handler
             elif self._state == self._menu_state:
                 if event.type == pg.KEYDOWN and event.key == pg.K_m:
@@ -306,35 +261,6 @@ class PhysicsSim:
                 x_pos, y_pos = (p1[0], p1[1]), (p2[0], p2[1])
                 pg.draw.line(self._screen, (0, 0, 0), x_pos, y_pos, 10)
 
-    def _draw_car(self):
-        """
-        Draws the car body and wheels onto the screen. Limit the x-pos of the car
-        to half of the screen width.
-        :return: None
-        """
-        # center coordinates of the car body in pm-space
-        car_body_center = self._car.body.position
-        # get rotation of the car body or wheel
-        car_body_rot = -math.degrees(self._car.body.angle)
-        # grab loaded image
-        image = pg.transform.rotate(self._car.image, car_body_rot)
-        car_body_rect = image.get_rect(center=image.get_rect(center=car_body_center).center)
-        if car_body_rect.centerx > 400:
-            car_body_rect.centerx = 400
-        # draw the car body onto the screen
-        self._screen.blit(image, car_body_rect)
-        # drawing front and back wheels
-        for i in range(2):
-            rot = -math.degrees(self._car.wheels[i].angle)
-            # grab loaded image
-            image = pg.transform.rotate(self._car_images_original[1], rot)
-            rect = image.get_rect(center=image.get_rect(center=self._car.wheels[i].position).center)
-            # shift the x-pos of the wheel by (x-cord of the car body) - 400
-            if car_body_center[0] > 400:
-                rect.centerx -= car_body_center[0] - 400
-            # draw the car body onto the screen
-            self._screen.blit(image, rect)
-
     def _draw_polys(self):
         """
         Blitting the dynamic objects of levels
@@ -356,22 +282,6 @@ class PhysicsSim:
                     center = (body.position[0], body.position[1])
                     rect = image.get_rect(center=center)
                     self._screen.blit(image, rect)
-
-    def _create_wheel(self, x_pos, y_pos, radius):
-        """
-        Create a wheel.
-        :return: None
-        """
-        mass = 20
-        inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
-        body = pymunk.Body(mass, inertia, pm.Body.DYNAMIC)
-        body.position = x_pos, y_pos
-        # body.apply_force_at_local_point((100000, 0), (0, 0))
-        shape = pymunk.Circle(body, radius, (0, 0))
-        shape.elasticity = 0.3
-        shape.friction = 0.9
-        self._space.add(body, shape)
-        return body, shape
 
     def _create_road(self, static_segs):
         """
@@ -397,7 +307,7 @@ class PhysicsSim:
         Create an obstacle course road and features
         :return:
         """
-        self._obc = ObstacleCourse(self._space, self._polys)
+        self._obc = ObstacleCourse(self._space, self._screen, self._polys)
         static_segs = self._obc.build()
         self._create_road(static_segs)
 

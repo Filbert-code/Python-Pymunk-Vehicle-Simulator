@@ -8,12 +8,13 @@ class Sportscar(Car):
     Create a Sportscar body and wheels and insert into the Space.
     Return all the information needed to blit the truck image onto the screen.
     """
-    def __init__(self, space, x_pos, y_pos):
-        super().__init__(space)
+    def __init__(self, space, screen, x_pos, y_pos):
+        super().__init__(space, screen)
+        self._space = space
+        self._screen = screen
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.body = None
-        self.wheels = []
         self.wheel_turn_force = 36000
         self.max_speed = 1200
         self.all_wheel_drive = False

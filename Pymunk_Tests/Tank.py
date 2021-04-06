@@ -9,8 +9,10 @@ class Tank(Car):
     Create a Truck body and wheels and insert into the Space.
     Return all the information needed to blit the truck image onto the screen.
     """
-    def __init__(self, space, x_pos, y_pos):
-        super().__init__(space)
+    def __init__(self, space, screen, x_pos, y_pos):
+        super().__init__(space, screen)
+        self._space = space
+        self._screen = screen
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.body = None
@@ -20,7 +22,12 @@ class Tank(Car):
         self.all_wheel_drive = True
         self._track_posx = x_pos - 100
         self._track_posy = y_pos
+        self.turret = None
+        self.turret_shape = None
         self.turret_wheel_angle = 0
+        self.image = pg.image.load("images/Tank.png")
+        self.image = pg.transform.scale(self.image, (441, 100))
+        self.barrel_image = pg.image.load("images/Tank Barrel.png")
         # self.image = pg.image.load("images/")
         # offset for the center of the car
 
@@ -48,9 +55,10 @@ class Tank(Car):
         self.turret_wheel, self.turret_wheel_shape = self._create_wheel(5000, self._track_posx + 208, self._track_posy-80, 18, elasticity=0, friction=1)
         turret_wheel_const1 = pm.constraints.PinJoint(tank_body, self.turret_wheel, (0, -20), (0, 0))
         turret_wheel_const2 = pm.constraints.PinJoint(tank_body, self.turret_wheel, (0, 20), (0, 0))
-        tank_turret, shape = self.create_poly(200, self._track_posx + 310, self._track_posy-80, 140, 13, elasticity=0)
-        turret_const1 = pm.constraints.PivotJoint(self.turret_wheel, tank_turret, (self._track_posx + 208, self._track_posy-80))
-        turret_const2 = pm.constraints.GearJoint(self.turret_wheel, tank_turret, 0.0, 300.0)
+        # tank turret stuff
+        self.turret, self.turret_shape = self.create_poly(200, self._track_posx + 310, self._track_posy-80, 140, 13, elasticity=0)
+        turret_const1 = pm.constraints.PivotJoint(self.turret_wheel, self.turret, (self._track_posx + 208, self._track_posy-80))
+        turret_const2 = pm.constraints.GearJoint(self.turret_wheel, self.turret, 0.0, 300.0)
         self._space.add(turret_wheel_const1, turret_wheel_const2, turret_const1, turret_const2)
 
         # mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9
@@ -195,11 +203,61 @@ class Tank(Car):
     def create_wheel_contraints(self, truck_body, truck_back_wheel, truck_front_wheel):
         pass
 
+    def shoot_projectile(self):
+        mass = 100
+        speed = 2000
+        w, h = 8, 14
+        # bullet vertices
+        vs = [(-h/2, w/2), (-h/2, -w/2), (0, w/2), (0, -w/2), (h, 0), (h-2, (w/4)), (h-2, (-w/4))]
+        x, y = self.turret.position
+        # angle of the turret
+        angle = self.turret.angle
+        bullet, shape = self.create_poly(mass, x, y, w, h, vs=vs, rot=angle)
+        # angle the bullet to parallel to the turret
+        x_vel = speed*math.cos(angle)
+        y_vel = speed*math.sin(angle)
+        # bullet velocity
+        bullet.velocity = pm.Vec2d(x_vel, y_vel)
+        bullet.torque = 5000
+        # disallows a collision between the bullet and the turret
+        shape.filter = pm.ShapeFilter(5)
+        self.turret_shape.filter = pm.ShapeFilter(5)
+
+    def update(self):
+        super().update()
+        keys = pg.key.get_pressed()
+        # no keys are pressed, slow down the wheels
+        if not keys[pg.K_d] and not keys[pg.K_a]:
+            x_vel = self.wheels[0].velocity.int_tuple[0]
+            if x_vel > 5:
+                self.wheels[0].apply_force_at_world_point((-5000, 6), (0, 0))
+            elif x_vel < -5:
+                self.wheels[0].apply_force_at_world_point((5000, 6), (0, 0))
+            if self.all_wheel_drive:
+                for i in range(1, len(self.wheels)):
+                    if x_vel > 5:
+                        self.wheels[i].apply_force_at_world_point((-5000, 6), (0, 0))
+                    elif x_vel < -5:
+                        self.wheels[i].apply_force_at_world_point((5000, 6), (0, 0))
+
+        # updating the angle of the tank turret
+        wheel = self.turret_wheel
+        if keys[pg.K_w]:
+            if self.turret_wheel:
+                wheel.angle -= 2
+                self.turret_wheel_angle -= 2
+        elif keys[pg.K_s]:
+            if self.turret_wheel:
+                wheel.angle += 2
+                self.turret_wheel_angle += 2
+        else:
+            wheel.angle = self.turret_wheel_angle + self.body.angle * 300
+
     def build(self):
-        self.create_static_segment(
-            [(self.x_pos - 400, self.y_pos + 20), (self.x_pos + 300, self.y_pos + 20)])
-        self.create_static_segment(
-            [(self.x_pos + 300, self.y_pos + 20), (self.x_pos + 600, self.y_pos - 100)])
-        self.create_static_segment(
-            [(self.x_pos + 600, self.y_pos - 100), (self.x_pos + 900, self.y_pos + 20)])
+        # self.create_static_segment(
+        #     [(self.x_pos - 400, self.y_pos + 20), (self.x_pos + 300, self.y_pos + 20)])
+        # self.create_static_segment(
+        #     [(self.x_pos + 300, self.y_pos + 20), (self.x_pos + 600, self.y_pos - 100)])
+        # self.create_static_segment(
+        #     [(self.x_pos + 600, self.y_pos - 100), (self.x_pos + 900, self.y_pos + 20)])
         return self.create_body_wheels()

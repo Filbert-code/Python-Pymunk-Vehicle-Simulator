@@ -1,4 +1,5 @@
 import pymunk as pm
+import pygame as pg
 import math
 
 
@@ -6,9 +7,17 @@ class Car:
     """
     Car superclass. Contains functions shared by all children Car classes.
     """
-    def __init__(self, space):
+    def __init__(self, space, screen):
         self._space = space
+        self._screen = screen
         self.turret_wheel = None
+        self.wheels = []
+        self.wheel_image = pg.transform.scale(pg.image.load("mr_car_wheel.png"), (42, 42))
+        self.body = None
+        self.image = None
+        self.wheel_turn_force = 10000  # default wheel turn force
+        self.max_speed = 100  # default max speed
+        self.all_wheel_drive = False  # default all-wheel drive setting
 
     def _create_wheel(self, mass, x_pos, y_pos, radius, elasticity=0.1, friction=0.9):
         """
@@ -53,4 +62,55 @@ class Car:
         # shape2.filter = pm.ShapeFilter(categories=0b1000)
         self._space.add(body, shape)
         return body, shape
+    
+    def update(self):
+        keys = pg.key.get_pressed()
+        # going forward
+        if keys[pg.K_d]:
+            # limiting velocity to 500
+            if self.wheels[0].velocity.int_tuple[0] < self.max_speed:
+                self.wheels[0].apply_force_at_world_point((self.wheel_turn_force, 12), (0, 0))
+            # all wheel drive
+            if self.all_wheel_drive:
+                for i in range(1, len(self.wheels)):
+                    if self.wheels[i].velocity.int_tuple[0] < self.max_speed:
+                        self.wheels[i].apply_force_at_world_point((self.wheel_turn_force, 12), (0, 0))
+        # going backward
+        elif keys[pg.K_a]:
+            if self.wheels[0].velocity.int_tuple[0] > -self.max_speed:
+                self.wheels[0].apply_force_at_world_point((-self.wheel_turn_force, 12), (0, 0))
+            if self.all_wheel_drive:
+                for i in range(1, len(self.wheels)):
+                    if self.wheels[i].velocity.int_tuple[0] > -self.max_speed:
+                        self.wheels[i].apply_force_at_world_point((-self.wheel_turn_force, 12), (0, 0))
+
+    def draw(self):
+        """
+        Draws the car body and wheels onto the screen. Limit the x-pos of the car
+        to half of the screen width.
+        :return: None
+        """
+        # center coordinates of the car body in pm-space
+        car_body_center = self.body.position
+        # drawing front and back wheels
+        for i in range(len(self.wheels)):
+            rot = -math.degrees(self.wheels[i].angle)
+            # grab loaded image
+            image = pg.transform.rotate(self.wheel_image, rot)
+            rect = image.get_rect(center=image.get_rect(center=self.wheels[i].position).center)
+            # shift the x-pos of the wheel by (x-cord of the car body) - 400
+            if car_body_center[0] > 400:
+                rect.centerx -= car_body_center[0] - 400
+            # draw the car body onto the screen
+            self._screen.blit(image, rect)
+        # get rotation of the car body or wheel
+        car_body_rot = -math.degrees(self.body.angle)
+        # grab loaded image
+        image = pg.transform.rotate(self.image, car_body_rot)
+        center = image.get_rect(center=car_body_center).center
+        car_body_rect = image.get_rect(center=(center[0]-20, center[1]+15))
+        if car_body_rect.centerx > 400:
+            car_body_rect.centerx = 400
+        # draw the car body onto the screen in front of the wheels
+        self._screen.blit(image, car_body_rect)
 
