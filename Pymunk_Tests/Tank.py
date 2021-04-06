@@ -280,10 +280,9 @@ class Tank(Car):
             image = pg.transform.rotate(self.track_image, -math.degrees(track.angle))
             # get the pygame Rect of the track
             rect = image.get_rect(center=image.get_rect(center=center).center)
-            # blit the image
             if self.body.position[0] > 420:
                 rect.centerx -= self.body.position[0] - 420
-            # draw the car body onto the screen
+            # blit the image
             self._screen.blit(image, rect)
         for bullet in self.bullets:
             center = bullet.position[0] + 4, bullet.position[1]
@@ -291,9 +290,8 @@ class Tank(Car):
             image = pg.transform.rotate(self.bullet_image, -math.degrees(bullet.angle))
             # get the pygame Rect of the track
             rect = image.get_rect(center=image.get_rect(center=center).center)
-            # blit the image
-
-            # draw the car body onto the screen
+            if self.body.position[0] > 420:
+                rect.centerx -= self.body.position[0] - 420
             self._screen.blit(image, rect)
         super().draw()
 
