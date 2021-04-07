@@ -19,7 +19,7 @@ class Tank(Car):
         self.wheels = []
         self.wheel_offset = (-20, 0)
         self.wheel_turn_force = 40000
-        self.max_speed = 250
+        self.max_speed = 350
         self.all_wheel_drive = True
         self._track_posx = x_pos - 100
         self._track_posy = y_pos
@@ -164,40 +164,40 @@ class Tank(Car):
         const2 = pm.constraints.PinJoint(tank_body, wheel2, (220, 0), (0, 0))
         const4 = pm.constraints.PinJoint(tank_body, wheel2, (0, 0), (0, 0))
         # middle wheel
-        stiffness, damp = 5000, 1500
+        stiffness, damp = 100, 100
         const5 = pm.constraints.SlideJoint(tank_body, wheel3, (0, 0), (0, 0), _min, _max)
         const6 = pm.constraints.SlideJoint(tank_body, wheel3, (-100, 0), (0, 0), _min_diag, _max_diag)
-        const7 = pm.constraints.DampedSpring(tank_body, wheel3, (100, 0), (0, 0), _min_diag, stiffness, damp)
+        const7 = pm.constraints.DampedSpring(tank_body, wheel3, (100, 0), (0, 0), _max_diag, stiffness, damp)
         const7_2 = pm.constraints.PinJoint(wheel2, wheel3, (0, 0), (0, 0))
         # middle right
         const8 = pm.constraints.SlideJoint(tank_body, wheel4, (42, 0), (0, 0), _min, _max)
         const9 = pm.constraints.SlideJoint(tank_body, wheel4, (42-100, 0), (0, 0), _min_diag, _max_diag)
-        const10 = pm.constraints.DampedSpring(tank_body, wheel4, (42+100, 0), (0, 0), _min_diag, stiffness, damp)
+        const10 = pm.constraints.DampedSpring(tank_body, wheel4, (42+100, 0), (0, 0), _max_diag, stiffness, damp)
         const10_2 = pm.constraints.PinJoint(wheel2, wheel4, (0, 0), (0, 0))
         # middle left
         const11 = pm.constraints.SlideJoint(tank_body, wheel5, (-42, 0), (0, 0), _min, _max)
         const12 = pm.constraints.SlideJoint(tank_body, wheel5, (-42-100, 0), (0, 0), _min_diag, _max_diag)
-        const13 = pm.constraints.DampedSpring(tank_body, wheel5, (-42+100, 0), (0, 0), _min_diag, stiffness, damp)
+        const13 = pm.constraints.DampedSpring(tank_body, wheel5, (-42+100, 0), (0, 0), _max_diag, stiffness, damp)
         const13_2 = pm.constraints.PinJoint(wheel2, wheel5, (0, 0), (0, 0))
         # second from far right
         const14 = pm.constraints.PinJoint(tank_body, wheel6, (126, 0), (0, 0))
         const15 = pm.constraints.SlideJoint(tank_body, wheel6, (126-100, 0), (0, 0), _min_diag, _max_diag)
-        const16 = pm.constraints.SlideJoint(tank_body, wheel6, (126+100, 0), (0, 0), _min_diag, _max_diag)
+        const16 = pm.constraints.DampedSpring(tank_body, wheel6, (126+100, 0), (0, 0), _max_diag, stiffness, damp)
         const16_2 = pm.constraints.PinJoint(wheel2, wheel6, (0, 0), (0, 0))
         # second from far left
         const17 = pm.constraints.PinJoint(tank_body, wheel7, (-126, 0), (0, 0))
         const18 = pm.constraints.SlideJoint(tank_body, wheel7, (-126-100, 0), (0, 0), _min_diag, _max_diag)
-        const19 = pm.constraints.SlideJoint(tank_body, wheel7, (-126+100, 0), (0, 0), _min_diag, _max_diag)
+        const19 = pm.constraints.DampedSpring(tank_body, wheel7, (-126+100, 0), (0, 0), _max_diag, stiffness, damp)
         const19_2 = pm.constraints.PinJoint(wheel2, wheel7, (0, 0), (0, 0))
         #
         const20 = pm.constraints.PinJoint(tank_body, wheel8, (84, 0), (0, 0))
         const21 = pm.constraints.SlideJoint(tank_body, wheel8, (84-100, 0), (0, 0), _min_diag, _max_diag)
-        const22 = pm.constraints.SlideJoint(tank_body, wheel8, (84+100, 0), (0, 0), _min_diag, _max_diag)
+        const22 = pm.constraints.DampedSpring(tank_body, wheel8, (84+100, 0), (0, 0), _max_diag, stiffness, damp)
         const22_2 = pm.constraints.PinJoint(wheel2, wheel8, (0, 0), (0, 0))
         # second from far left
         const23 = pm.constraints.PinJoint(tank_body, wheel9, (-84, 0), (0, 0))
         const24 = pm.constraints.SlideJoint(tank_body, wheel9, (-84-100, 0), (0, 0), _min_diag, _max_diag)
-        const25 = pm.constraints.SlideJoint(tank_body, wheel9, (-84+100, 0), (0, 0), _min_diag, _max_diag)
+        const25 = pm.constraints.DampedSpring(tank_body, wheel9, (-84+100, 0), (0, 0), _max_diag, stiffness, damp)
         const25_2 = pm.constraints.PinJoint(wheel2, wheel9, (0, 0), (0, 0))
         self._space.add(const7_2, const10_2, const13_2, const16_2, const19_2, const22_2, const25_2)
         # self._space.add(small_const1, small_const2, small_const3, small_const4)
