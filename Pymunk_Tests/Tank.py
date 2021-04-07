@@ -29,6 +29,7 @@ class Tank(Car):
         self.turret_shape = None
         self.turret_wheel_angle = 0
         self.bullets = []
+        self.bullets_shapes = []
         self.image = pg.image.load("images/Tank.png")
         self.image = pg.transform.scale(self.image, (441, 100))
         self.image_offset = (-20, 15)
@@ -216,7 +217,7 @@ class Tank(Car):
 
     def shoot_projectile(self):
         mass = 100
-        speed = 2000
+        speed = 2500
         w, h = 8, 14
         # bullet vertices
         vs = [(-h/2, w/2), (-h/2, -w/2), (0, w/2), (0, -w/2), (h, 0), (h-2, (w/4)), (h-2, (-w/4))]
@@ -233,6 +234,7 @@ class Tank(Car):
         # disallows a collision between the bullet and the turret
         shape.filter = pm.ShapeFilter(5)
         self.bullets.append(bullet)
+        self.bullets_shapes.append(shape)
         self.turret_shape.filter = pm.ShapeFilter(5)
 
     def update(self):
@@ -295,11 +297,10 @@ class Tank(Car):
             self._screen.blit(image, rect)
         super().draw()
 
+    # def _check_for_collision(self):
+    #     for bullet in self.bullets_shapes:
+    #         query = self._space.shape_query(bullet)
+    #         print(query)
+
     def build(self):
-        # self.create_static_segment(
-        #     [(self.x_pos - 400, self.y_pos + 20), (self.x_pos + 300, self.y_pos + 20)])
-        # self.create_static_segment(
-        #     [(self.x_pos + 300, self.y_pos + 20), (self.x_pos + 600, self.y_pos - 100)])
-        # self.create_static_segment(
-        #     [(self.x_pos + 600, self.y_pos - 100), (self.x_pos + 900, self.y_pos + 20)])
         return self.create_body_wheels()

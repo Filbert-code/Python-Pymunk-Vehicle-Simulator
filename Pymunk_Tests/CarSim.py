@@ -3,10 +3,12 @@ import constants
 import math
 from RoadBuilder import RoadBuilder
 from ObstacleCourse import ObstacleCourse
+from Tank_Level import Tank_Level
 from Truck import Truck
 from Sportscar import Sportscar
 from Tank import Tank
 from Menu import Menu
+from Level import Level
 
 # Library imports
 import pygame as pg
@@ -30,13 +32,13 @@ class PhysicsSim:
         # enables pymunk's debug draw mode for pygame
         self._draw_options = pymunk.pygame_util.DrawOptions(self._screen)
         # only draws shapes, no constraints or joints
-        self._draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
+        # self._draw_options.flags = pymunk.SpaceDebugDrawOptions.DRAW_SHAPES
 
         # Physics
         # Time step
-        self._dt = 1.0 / 60.0
+        self._dt = 1.0 / 120.0
         # Number of physics steps per screen frame
-        self._physics_steps_per_frame = 1
+        self._physics_steps_per_frame = 2
 
         # mouse interactivity
         self._mouse_joint = None
@@ -56,9 +58,11 @@ class PhysicsSim:
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
         # declare obstacle course
-        self._obc = None
-        self._create_obstacle_course()
-        self._active_level = 0  # index of active level: obstacle course=0, mountain=1
+        # self._obc = None
+        # self._create_obstacle_course()
+        # self._active_level = 0  # index of active level: obstacle course=0, mountain=1
+        self._level = None
+        self._create_tank_obstacle_course()
 
         # menu
         self._btn_clicked = None  # array to keep track of which arrow button is pressed
@@ -113,7 +117,8 @@ class PhysicsSim:
         Updates the states of all objects and the screen
         :return:
         """
-        self._car.update()
+        # self._car.update()
+        pass
 
     def _draw(self):
         """
@@ -121,9 +126,10 @@ class PhysicsSim:
         :return:
         """
         self._space.debug_draw(self._draw_options)
-        # self._draw_road()
+        self._draw_road()
         # self._draw_polys()
         self._car.draw()
+        self._level.draw()
 
     def _process_time(self):
         """
@@ -131,6 +137,7 @@ class PhysicsSim:
         :return:
         """
         for x in range(self._physics_steps_per_frame):
+            self._car.update()
             self._space.step(self._dt)
 
     def _process_events(self):
@@ -308,10 +315,18 @@ class PhysicsSim:
         Create an obstacle course road and features
         :return:
         """
-        self._obc = ObstacleCourse(self._space, self._screen, self._polys)
+        self._level = ObstacleCourse(self._space, self._screen, self._polys)
         static_segs = self._obc.build()
         self._create_road(static_segs)
 
+    def _create_tank_obstacle_course(self):
+        """
+                Create an obstacle course for the tank
+                :return:
+                """
+        self._level = Tank_Level(self._space, self._screen)
+        static_segs = self._level.build()
+        self._create_road(static_segs)
 
 if __name__ == "__main__":
     sim = PhysicsSim()
