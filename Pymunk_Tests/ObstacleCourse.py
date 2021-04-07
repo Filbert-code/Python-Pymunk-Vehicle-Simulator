@@ -2,11 +2,13 @@ import pymunk as pm
 import pygame as pg
 from Car import Car
 from RoadBuilder import RoadBuilder
+from Level import Level
 import constants
 
 
-class ObstacleCourse:
-    def __init__(self, space, screen, polys):
+class ObstacleCourse(Level):
+    def __init__(self, space, screen, car, polys):
+        super().__init__(space, screen, car)
         self._space = space
         self._screen = screen
         self._rb = rb = RoadBuilder(self._space)
@@ -43,12 +45,15 @@ class ObstacleCourse:
             b1, s1 = self._c.create_poly(50, 50, constants.HEIGHT - radius * i, radius, radius, friction=1, color=color)
             b2, s2 = self._c.create_poly(50, 50 + fort_length, constants.HEIGHT - radius * i, radius, radius, friction=1, color=color)
             fort_height = constants.HEIGHT - radius * i
+            # self._shapes_to_draw['rect'].append(b1, (255, 0, 0), radius, radius)
+            # self._shapes_to_draw['rect'].append(b2, (255, 0, 0), radius, radius)
             list_of_bodies.append(b1)
             list_of_bodies.append(b2)
         b, s = self._c.create_poly(200, starting_pos + fort_length / 2, fort_height - radius, fort_length, 35, color=color)
         image2 = pg.image.load("images/box_fort_roof_img.png")
         self.polys[image1] = list_of_bodies
         self.polys[image2] = [b]
+
 
     def _spring_trap(self):
         # create the spring body

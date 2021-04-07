@@ -125,11 +125,12 @@ class PhysicsSim:
         draws pygame objects/shapes
         :return:
         """
-        self._space.debug_draw(self._draw_options)
+        # self._space.debug_draw(self._draw_options)
         self._draw_road()
-        # self._draw_polys()
+        self._draw_polys()
         self._car.draw()
-        self._level.draw()
+        if self._level:
+            self._level.draw()
 
     def _process_time(self):
         """
@@ -157,7 +158,7 @@ class PhysicsSim:
                 elif event.type == pg.KEYDOWN and event.key == pg.K_m:
                     self._state = self._menu_state
                 elif event.type == pg.KEYDOWN and event.key == pg.K_r:
-                    self._space.remove(self._obc.spring_trap_pin)
+                    self._space.remove(self._level.spring_trap_pin)
                 # check if a Tank has been instantiated and fire a shot
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     if isinstance(Tank, type):
@@ -192,13 +193,13 @@ class PhysicsSim:
             if btn_num == 4:
                 if centerx - 50 <= x <= centerx + 50 and centery - 50 <= y <= centery + 50:
                     self._btn_clicked = [1 if i == btn_num else 0 for i in range(6)]
-                    self._reset_button_pressed()
+                    self._apply_button_pressed()
                     break
             # apply button
             elif btn_num == 5:
                 if centerx - 50 <= x <= centerx + 50 and centery - 50 <= y <= centery + 50:
                     self._btn_clicked = [1 if i == btn_num else 0 for i in range(6)]
-                    self._apply_button_pressed()
+                    self._reset_button_pressed()
                     break
             # checking if arrow buttons are pressed
             if centerx - 16 <= x <= centerx + 10 and centery - 15 <= y <= centery + 15 or \
@@ -207,7 +208,7 @@ class PhysicsSim:
                 self._btn_clicked = [1 if i == btn_num else 0 for i in range(6)]
                 break
 
-    def _reset_button_pressed(self):
+    def _apply_button_pressed(self):
         """
         Delete all objects in Space and create new instances of the current car and current
         level. This is triggered when the user presses the reset button in the menu.
@@ -218,20 +219,27 @@ class PhysicsSim:
         self._space = pm.Space()
         self._space.gravity = (0, 981.0)
         if self._menu.current_car == 0:
-            self._car = Sportscar(self._space, self._space, 200, 550)
+            self._car = Sportscar(self._space, self._screen, 200, 550)
             self._active_car = 0
-        else:
+        elif self._menu.current_car == 1:
             self._car = Truck(self._space, self._screen, 200, 550)
             self._active_car = 1
+        elif self._menu.current_car == 2:
+            self._car = Tank(self._space, self._screen, constants.WIDTH/2-200, constants.HEIGHT-50)
+            self._active_car = 2
         self._car.build()
         if self._menu.current_level == 0:
             self._create_obstacle_course()
             self._active_level = 0
-        else:
+        elif self._menu.current_level == 1:
+            self._level = None
             self._create_random_generated_road()
             self._active_level = 1
+        elif self._menu.current_level == 2:
+            self._create_tank_obstacle_course()
+            self._active_level = 2
 
-    def _apply_button_pressed(self):
+    def _reset_button_pressed(self):
         """
         Delete all objects in Space and create new instances of the selected car and selected
         level. This is triggered when the user presses the apply button in the menu.
@@ -249,6 +257,7 @@ class PhysicsSim:
         if self._active_level == 0:
             self._create_obstacle_course()
         else:
+            self._level = None
             self._create_random_generated_road()
 
     def _draw_road(self):
@@ -315,8 +324,8 @@ class PhysicsSim:
         Create an obstacle course road and features
         :return:
         """
-        self._level = ObstacleCourse(self._space, self._screen, self._polys)
-        static_segs = self._obc.build()
+        self._level = ObstacleCourse(self._space, self._screen, self._car, self._polys)
+        static_segs = self._level.build()
         self._create_road(static_segs)
 
     def _create_tank_obstacle_course(self):

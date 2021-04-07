@@ -6,6 +6,7 @@ right_btn_pressed = pg.image.load("images/menu_images/right_pressed_arrow.png")
 left_btn_pressed = pg.image.load("images/menu_images/left_pressed_arrow.png")
 sportscar = pg.image.load("images/menu_images/sportscar.png")
 truck = pg.image.load("images/menu_images/truck.png")
+tank = pg.image.load("images/menu_images/tank.png")
 apply_changes_btn = pg.image.load("images/menu_images/apply_changes_btn.png")
 apply_changes_btn_pressed = pg.image.load("images/menu_images/apply_changes_btn_pressed.png")
 reset_btn = pg.image.load("images/menu_images/reset_btn.png")
@@ -25,8 +26,8 @@ class Menu:
         # center coordinates of each button: top-left, top-right, bot-left, bot-right
         self.btn_positions = [(453, 138), (832, 139), (453, 280), (832, 280), (703, 436), (573, 436)]
         self.btn_blit_coords = self.get_btn_blit_coords()
-        self._car_images = [sportscar, truck]
-        self._level_names = ['Big Jump', 'Mountain']
+        self._car_images = [sportscar, truck, tank]
+        self._level_names = ['Big Jump', 'Mountain', '  Tank']
         self.current_car = 0
         self.current_level = 0
         self.selection_updated = 0
