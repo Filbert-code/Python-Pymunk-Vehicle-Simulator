@@ -18,8 +18,8 @@ class Tank(Car):
         self.body = None
         self.wheels = []
         self.wheel_offset = (-20, 0)
-        self.wheel_turn_force = 30000
-        self.max_speed = 150
+        self.wheel_turn_force = 40000
+        self.max_speed = 250
         self.all_wheel_drive = True
         self._track_posx = x_pos - 100
         self._track_posy = y_pos
@@ -54,7 +54,7 @@ class Tank(Car):
         h = 4
         mass = 200
         shape_filter = pm.ShapeFilter(categories=0b1000)
-        tank_body, shape = self.create_poly(5000, self._track_posx + 140, self._track_posy-80, 90, 40, elasticity=0)
+        tank_body, shape = self.create_poly(10000, self._track_posx + 140, self._track_posy-80, 90, 40, elasticity=0)
         w2, h2 = 180, 40
         vs = [(-w2 / 2, -h2 / 2), (w2 / 2, -h2 / 2), (w2 / 2, h2 / 2), (-w2 / 2, h2 / 2)]
         tank_shape1 = pm.Poly(tank_body, vs, radius=1, transform=pm.Transform.translation(-135, 0))
@@ -131,8 +131,10 @@ class Tank(Car):
         self.wheels.append(wheel7)
         self.wheels.append(wheel8)
         self.wheels.append(wheel9)
-        _min = 74
-        _max = 82
+        _min = 72
+        _max = 100
+        _min_diag = 74 / math.sin(math.atan(0.74))
+        _max_diag = math.sqrt(2)*_max
         # top-left small wheel
         # small_const1 = pm.constraints.PinJoint(wheel1, small_wheel1, (0, 0), (0, 0))
         # small_const2 = pm.constraints.PinJoint(wheel2, small_wheel1, (0, 0), (0, 0))
@@ -162,33 +164,42 @@ class Tank(Car):
         const2 = pm.constraints.PinJoint(tank_body, wheel2, (220, 0), (0, 0))
         const4 = pm.constraints.PinJoint(tank_body, wheel2, (0, 0), (0, 0))
         # middle wheel
+        stiffness, damp = 5000, 1500
         const5 = pm.constraints.SlideJoint(tank_body, wheel3, (0, 0), (0, 0), _min, _max)
-        const6 = pm.constraints.PinJoint(tank_body, wheel3, (-100, 0), (0, 0))
-        const7 = pm.constraints.PinJoint(tank_body, wheel3, (100, 0), (0, 0))
+        const6 = pm.constraints.SlideJoint(tank_body, wheel3, (-100, 0), (0, 0), _min_diag, _max_diag)
+        const7 = pm.constraints.DampedSpring(tank_body, wheel3, (100, 0), (0, 0), _min_diag, stiffness, damp)
+        const7_2 = pm.constraints.PinJoint(wheel2, wheel3, (0, 0), (0, 0))
         # middle right
         const8 = pm.constraints.SlideJoint(tank_body, wheel4, (42, 0), (0, 0), _min, _max)
-        const9 = pm.constraints.PinJoint(tank_body, wheel4, (42-100, 0), (0, 0))
-        const10 = pm.constraints.PinJoint(tank_body, wheel4, (42+100, 0), (0, 0))
+        const9 = pm.constraints.SlideJoint(tank_body, wheel4, (42-100, 0), (0, 0), _min_diag, _max_diag)
+        const10 = pm.constraints.DampedSpring(tank_body, wheel4, (42+100, 0), (0, 0), _min_diag, stiffness, damp)
+        const10_2 = pm.constraints.PinJoint(wheel2, wheel4, (0, 0), (0, 0))
         # middle left
         const11 = pm.constraints.SlideJoint(tank_body, wheel5, (-42, 0), (0, 0), _min, _max)
-        const12 = pm.constraints.PinJoint(tank_body, wheel5, (-42-100, 0), (0, 0))
-        const13 = pm.constraints.PinJoint(tank_body, wheel5, (-42+100, 0), (0, 0))
+        const12 = pm.constraints.SlideJoint(tank_body, wheel5, (-42-100, 0), (0, 0), _min_diag, _max_diag)
+        const13 = pm.constraints.DampedSpring(tank_body, wheel5, (-42+100, 0), (0, 0), _min_diag, stiffness, damp)
+        const13_2 = pm.constraints.PinJoint(wheel2, wheel5, (0, 0), (0, 0))
         # second from far right
-        const14 = pm.constraints.SlideJoint(tank_body, wheel6, (126, 0), (0, 0), _min, _max)
-        const15 = pm.constraints.PinJoint(tank_body, wheel6, (126-100, 0), (0, 0))
-        const16 = pm.constraints.PinJoint(tank_body, wheel6, (126+100, 0), (0, 0))
+        const14 = pm.constraints.PinJoint(tank_body, wheel6, (126, 0), (0, 0))
+        const15 = pm.constraints.SlideJoint(tank_body, wheel6, (126-100, 0), (0, 0), _min_diag, _max_diag)
+        const16 = pm.constraints.SlideJoint(tank_body, wheel6, (126+100, 0), (0, 0), _min_diag, _max_diag)
+        const16_2 = pm.constraints.PinJoint(wheel2, wheel6, (0, 0), (0, 0))
         # second from far left
-        const17 = pm.constraints.SlideJoint(tank_body, wheel7, (-126, 0), (0, 0), _min, _max)
-        const18 = pm.constraints.PinJoint(tank_body, wheel7, (-126-100, 0), (0, 0))
-        const19 = pm.constraints.PinJoint(tank_body, wheel7, (-126+100, 0), (0, 0))
+        const17 = pm.constraints.PinJoint(tank_body, wheel7, (-126, 0), (0, 0))
+        const18 = pm.constraints.SlideJoint(tank_body, wheel7, (-126-100, 0), (0, 0), _min_diag, _max_diag)
+        const19 = pm.constraints.SlideJoint(tank_body, wheel7, (-126+100, 0), (0, 0), _min_diag, _max_diag)
+        const19_2 = pm.constraints.PinJoint(wheel2, wheel7, (0, 0), (0, 0))
         #
-        const20 = pm.constraints.SlideJoint(tank_body, wheel8, (84, 0), (0, 0), _min, _max)
-        const21 = pm.constraints.PinJoint(tank_body, wheel8, (84-100, 0), (0, 0))
-        const22 = pm.constraints.PinJoint(tank_body, wheel8, (84+100, 0), (0, 0))
+        const20 = pm.constraints.PinJoint(tank_body, wheel8, (84, 0), (0, 0))
+        const21 = pm.constraints.SlideJoint(tank_body, wheel8, (84-100, 0), (0, 0), _min_diag, _max_diag)
+        const22 = pm.constraints.SlideJoint(tank_body, wheel8, (84+100, 0), (0, 0), _min_diag, _max_diag)
+        const22_2 = pm.constraints.PinJoint(wheel2, wheel8, (0, 0), (0, 0))
         # second from far left
-        const23 = pm.constraints.SlideJoint(tank_body, wheel9, (-84, 0), (0, 0), _min, _max)
-        const24 = pm.constraints.PinJoint(tank_body, wheel9, (-84-100, 0), (0, 0))
-        const25 = pm.constraints.PinJoint(tank_body, wheel9, (-84+100, 0), (0, 0))
+        const23 = pm.constraints.PinJoint(tank_body, wheel9, (-84, 0), (0, 0))
+        const24 = pm.constraints.SlideJoint(tank_body, wheel9, (-84-100, 0), (0, 0), _min_diag, _max_diag)
+        const25 = pm.constraints.SlideJoint(tank_body, wheel9, (-84+100, 0), (0, 0), _min_diag, _max_diag)
+        const25_2 = pm.constraints.PinJoint(wheel2, wheel9, (0, 0), (0, 0))
+        self._space.add(const7_2, const10_2, const13_2, const16_2, const19_2, const22_2, const25_2)
         # self._space.add(small_const1, small_const2, small_const3, small_const4)
         # self._space.add(small_const5, small_const6, small_const7, small_const8)
         self._space.add(small_const9, small_const10, small_const11, small_const12)

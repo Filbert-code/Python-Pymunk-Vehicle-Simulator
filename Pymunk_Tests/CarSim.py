@@ -161,6 +161,7 @@ class PhysicsSim:
                     self._space.remove(self._level.spring_trap_pin)
                 # check if a Tank has been instantiated and fire a shot
                 elif event.type == pg.MOUSEBUTTONDOWN:
+                    print(pg.mouse.get_pos())
                     if isinstance(Tank, type):
                         self._car.shoot_projectile()
             # menu event handler
