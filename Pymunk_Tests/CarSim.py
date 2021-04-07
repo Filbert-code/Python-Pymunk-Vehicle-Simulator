@@ -324,7 +324,7 @@ class PhysicsSim:
                 Create an obstacle course for the tank
                 :return:
                 """
-        self._level = Tank_Level(self._space, self._screen)
+        self._level = Tank_Level(self._space, self._screen, self._car)
         static_segs = self._level.build()
         self._create_road(static_segs)
 
