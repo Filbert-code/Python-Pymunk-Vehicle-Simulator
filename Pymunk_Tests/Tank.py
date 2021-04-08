@@ -18,7 +18,7 @@ class Tank(Car):
         self.body = None
         self.wheels = []
         self.wheel_offset = (-20, 0)
-        self.wheel_turn_force = 40000
+        self.wheel_turn_force = 50000
         self.max_speed = 350
         self.all_wheel_drive = True
         self._track_posx = x_pos - 100
@@ -60,11 +60,11 @@ class Tank(Car):
         tank_shape1 = pm.Poly(tank_body, vs, radius=1, transform=pm.Transform.translation(-135, 0))
         self._space.add(tank_shape1)
         self.body = tank_body
-        self.turret_wheel, self.turret_wheel_shape = self._create_wheel(5000, self._track_posx + 208, self._track_posy-80, 18, elasticity=0, friction=1)
+        self.turret_wheel, self.turret_wheel_shape = self._create_wheel(7000, self._track_posx + 208, self._track_posy-80, 18, elasticity=0, friction=1)
         turret_wheel_const1 = pm.constraints.PinJoint(tank_body, self.turret_wheel, (0, -20), (0, 0))
         turret_wheel_const2 = pm.constraints.PinJoint(tank_body, self.turret_wheel, (0, 20), (0, 0))
         # tank turret stuff
-        self.turret, self.turret_shape = self.create_poly(200, self._track_posx + 310, self._track_posy-80, 140, 13, elasticity=0)
+        self.turret, self.turret_shape = self.create_poly(3000, self._track_posx + 310, self._track_posy-80, 140, 13, elasticity=0)
         turret_const1 = pm.constraints.PivotJoint(self.turret_wheel, self.turret, (self._track_posx + 208, self._track_posy-80))
         turret_const2 = pm.constraints.GearJoint(self.turret_wheel, self.turret, 0.0, 300.0)
         self._space.add(turret_wheel_const1, turret_wheel_const2, turret_const1, turret_const2)
@@ -107,17 +107,17 @@ class Tank(Car):
         # mass, x_pos, y_pos, radius, elasticity=0.3, friction=0.9
         # small_wheel1, shape = self._create_wheel(50, x - 10, y - 45, 14, elasticity=0, friction=1)
         # small_wheel2, shape = self._create_wheel(50, x + 245, y - 50, 12, elasticity=0, friction=1)
-        small_wheel3, shape = self._create_wheel(50, x + 76, y - 42, 14, elasticity=0, friction=1)
-        small_wheel4, shape = self._create_wheel(50, x + 160, y - 42, 14, elasticity=0, friction=1)
-        wheel1, shape = self._create_wheel(50, x - 46, y - 20, 15, elasticity=0, friction=1)
-        wheel2, shape = self._create_wheel(50, x + 295, y - 20, 15, elasticity=0, friction=1)
-        wheel3, shape = self._create_wheel(50, x + 138, y - 3, 18, elasticity=0, friction=1)
-        wheel4, shape = self._create_wheel(50, x + 180, y - 3, 18, elasticity=0, friction=1)
-        wheel5, shape = self._create_wheel(50, x + 96, y - 3, 18, elasticity=0, friction=1)
-        wheel6, shape = self._create_wheel(50, x + 264, y - 3, 16, elasticity=0, friction=1)
-        wheel7, shape = self._create_wheel(50, x + 12, y - 3, 18, elasticity=0, friction=1)
-        wheel8, shape = self._create_wheel(50, x + 222, y - 3, 18, elasticity=0, friction=1)
-        wheel9, shape = self._create_wheel(50, x + 54, y - 3, 18, elasticity=0, friction=1)
+        small_wheel3, shape = self._create_wheel(500, x + 76, y - 42, 14, elasticity=0, friction=1)
+        small_wheel4, shape = self._create_wheel(500, x + 160, y - 42, 14, elasticity=0, friction=1)
+        wheel1, shape = self._create_wheel(500, x - 46, y - 20, 15, elasticity=0, friction=1)
+        wheel2, shape = self._create_wheel(500, x + 295, y - 20, 15, elasticity=0, friction=1)
+        wheel3, shape = self._create_wheel(500, x + 138, y - 3, 18, elasticity=0, friction=1)
+        wheel4, shape = self._create_wheel(500, x + 180, y - 3, 18, elasticity=0, friction=1)
+        wheel5, shape = self._create_wheel(500, x + 96, y - 3, 18, elasticity=0, friction=1)
+        wheel6, shape = self._create_wheel(500, x + 264, y - 3, 16, elasticity=0, friction=1)
+        wheel7, shape = self._create_wheel(500, x + 12, y - 3, 18, elasticity=0, friction=1)
+        wheel8, shape = self._create_wheel(500, x + 222, y - 3, 18, elasticity=0, friction=1)
+        wheel9, shape = self._create_wheel(500, x + 54, y - 3, 18, elasticity=0, friction=1)
         # self.wheels.append(small_wheel1)
         # self.wheels.append(small_wheel2)
         self.wheels.append(small_wheel3)
@@ -132,7 +132,7 @@ class Tank(Car):
         self.wheels.append(wheel8)
         self.wheels.append(wheel9)
         _min = 72
-        _max = 100
+        _max = 95
         _min_diag = 74 / math.sin(math.atan(0.74))
         _max_diag = math.sqrt(2)*_max
         # top-left small wheel
@@ -164,7 +164,7 @@ class Tank(Car):
         const2 = pm.constraints.PinJoint(tank_body, wheel2, (220, 0), (0, 0))
         const4 = pm.constraints.PinJoint(tank_body, wheel2, (0, 0), (0, 0))
         # middle wheel
-        stiffness, damp = 100, 100
+        stiffness, damp = 2000, 100
         const5 = pm.constraints.SlideJoint(tank_body, wheel3, (0, 0), (0, 0), _min, _max)
         const6 = pm.constraints.SlideJoint(tank_body, wheel3, (-100, 0), (0, 0), _min_diag, _max_diag)
         const7 = pm.constraints.DampedSpring(tank_body, wheel3, (100, 0), (0, 0), _max_diag, stiffness, damp)
@@ -180,22 +180,22 @@ class Tank(Car):
         const13 = pm.constraints.DampedSpring(tank_body, wheel5, (-42+100, 0), (0, 0), _max_diag, stiffness, damp)
         const13_2 = pm.constraints.PinJoint(wheel2, wheel5, (0, 0), (0, 0))
         # second from far right
-        const14 = pm.constraints.PinJoint(tank_body, wheel6, (126, 0), (0, 0))
+        const14 = pm.constraints.SlideJoint(tank_body, wheel6, (126, 0), (0, 0), _min, _max)
         const15 = pm.constraints.SlideJoint(tank_body, wheel6, (126-100, 0), (0, 0), _min_diag, _max_diag)
         const16 = pm.constraints.DampedSpring(tank_body, wheel6, (126+100, 0), (0, 0), _max_diag, stiffness, damp)
         const16_2 = pm.constraints.PinJoint(wheel2, wheel6, (0, 0), (0, 0))
         # second from far left
-        const17 = pm.constraints.PinJoint(tank_body, wheel7, (-126, 0), (0, 0))
+        const17 = pm.constraints.SlideJoint(tank_body, wheel7, (-126, 0), (0, 0), _min, _max)
         const18 = pm.constraints.SlideJoint(tank_body, wheel7, (-126-100, 0), (0, 0), _min_diag, _max_diag)
         const19 = pm.constraints.DampedSpring(tank_body, wheel7, (-126+100, 0), (0, 0), _max_diag, stiffness, damp)
         const19_2 = pm.constraints.PinJoint(wheel2, wheel7, (0, 0), (0, 0))
         #
-        const20 = pm.constraints.PinJoint(tank_body, wheel8, (84, 0), (0, 0))
+        const20 = pm.constraints.SlideJoint(tank_body, wheel8, (84, 0), (0, 0), _min, _max)
         const21 = pm.constraints.SlideJoint(tank_body, wheel8, (84-100, 0), (0, 0), _min_diag, _max_diag)
         const22 = pm.constraints.DampedSpring(tank_body, wheel8, (84+100, 0), (0, 0), _max_diag, stiffness, damp)
         const22_2 = pm.constraints.PinJoint(wheel2, wheel8, (0, 0), (0, 0))
         # second from far left
-        const23 = pm.constraints.PinJoint(tank_body, wheel9, (-84, 0), (0, 0))
+        const23 = pm.constraints.SlideJoint(tank_body, wheel9, (-84, 0), (0, 0), _min, _max)
         const24 = pm.constraints.SlideJoint(tank_body, wheel9, (-84-100, 0), (0, 0), _min_diag, _max_diag)
         const25 = pm.constraints.DampedSpring(tank_body, wheel9, (-84+100, 0), (0, 0), _max_diag, stiffness, damp)
         const25_2 = pm.constraints.PinJoint(wheel2, wheel9, (0, 0), (0, 0))
