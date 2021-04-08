@@ -54,3 +54,12 @@ class Level:
                 right = (right[0]-offset, right[1])
             pg.draw.line(self._screen, shape_list[1], left, right, int(shape.radius)*2)
 
+    def update(self):
+        for val in self._shapes_to_draw.keys():
+            for num, shape_list in enumerate(self._shapes_to_draw[val]):
+                shape = shape_list[0]
+                if shape.body.position[1] > 720:
+                    self._shapes_to_draw[val].pop(num)
+                    self._space.remove(shape)
+
+

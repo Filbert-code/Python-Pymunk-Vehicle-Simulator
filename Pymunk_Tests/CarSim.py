@@ -23,7 +23,9 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH+640, constants.HEIGHT+360))
+        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
+        # self._screen = pg.Surface((constants.WIDTH, constants.HEIGHT))
+        # self._window = pg.display.set_mode((1280, constants.HEIGHT), pg.RESIZABLE)
         self._clock = pg.time.Clock()
 
         # pymunk space
@@ -53,7 +55,7 @@ class PhysicsSim:
         # SPAWN STUFF
         # self._car = Truck(self._space, self._screen, 200, 550)
         # self._car = Sportscar(self._space, self._screen, 200, 550)
-        self._car = Tank(self._space, self._screen, constants.WIDTH/2-200, constants.HEIGHT-50)
+        self._car = Tank(self._space, self._screen, constants.WIDTH/4, constants.HEIGHT-50)
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
@@ -63,6 +65,9 @@ class PhysicsSim:
         # self._active_level = 0  # index of active level: obstacle course=0, mountain=1
         self._level = None
         self._create_tank_obstacle_course()
+
+        # debug key
+        self._debug = False
 
         # menu
         self._btn_clicked = None  # array to keep track of which arrow button is pressed
@@ -118,19 +123,25 @@ class PhysicsSim:
         :return:
         """
         # self._car.update()
-        pass
+        self._level.update()
 
     def _draw(self):
         """
         draws pygame objects/shapes
         :return:
         """
-        # self._space.debug_draw(self._draw_options)
-        self._draw_road()
-        self._draw_polys()
-        self._car.draw()
-        if self._level:
-            self._level.draw()
+        if self._debug:
+            self._space.debug_draw(self._draw_options)
+        else:
+            self._draw_road()
+            self._draw_polys()
+            self._car.draw()
+            if self._level:
+                self._level.draw()
+        # prototyping a mini map
+        # self._window.blit(pg.transform.chop(self._screen, rect), (0, 0))
+        # self._window.blit(pg.transform.scale(self._screen, (711, 200)), (320, 0))
+        # self._window.blit(self._screen, (0, 0))
 
     def _process_time(self):
         """
@@ -159,6 +170,11 @@ class PhysicsSim:
                     self._state = self._menu_state
                 elif event.type == pg.KEYDOWN and event.key == pg.K_r:
                     self._space.remove(self._level.spring_trap_pin)
+                elif event.type == pg.KEYDOWN and event.key == pg.K_b:
+                    if self._debug:
+                        self._debug = False
+                    else:
+                        self._debug = True
                 # check if a Tank has been instantiated and fire a shot
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     print(pg.mouse.get_pos())
@@ -335,8 +351,7 @@ class PhysicsSim:
                 :return:
                 """
         self._level = Tank_Level(self._space, self._screen, self._car)
-        static_segs = self._level.build()
-        self._create_road(static_segs)
+        self._level.build()
 
 if __name__ == "__main__":
     sim = PhysicsSim()
