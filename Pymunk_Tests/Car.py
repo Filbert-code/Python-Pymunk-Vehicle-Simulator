@@ -37,7 +37,7 @@ class Car:
         self._space.add(body, shape)
         return body, shape
 
-    def create_poly(self, mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9, color=None, rot=0):
+    def create_poly(self, mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9, color=None, rot=0, s_filter=3):
         """
         Create a polygon. Used to make the body of the car.
         :return: Body and Shape objects
@@ -59,7 +59,7 @@ class Car:
 
         shape.elasticity = elasticity
         shape.friction = friction
-        shape.filter = pm.ShapeFilter(categories=0b1000)
+        shape.filter = pm.ShapeFilter(categories=s_filter)
         if color:
             shape.color = color
         # shape2.filter = pm.ShapeFilter(categories=0b1000)

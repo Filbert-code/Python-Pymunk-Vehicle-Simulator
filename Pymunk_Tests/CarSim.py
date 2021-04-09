@@ -55,7 +55,8 @@ class PhysicsSim:
         # SPAWN STUFF
         # self._car = Truck(self._space, self._screen, 200, 550)
         # self._car = Sportscar(self._space, self._screen, 200, 550)
-        self._car = Tank(self._space, self._screen, constants.WIDTH/4, constants.HEIGHT-50)
+        # self._car = Tank(self._space, self._screen, constants.WIDTH/4, constants.HEIGHT-50)
+        self._car = Tank(self._space, self._screen, 4000, constants.HEIGHT - 250)
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
@@ -123,7 +124,8 @@ class PhysicsSim:
         :return:
         """
         # self._car.update()
-        self._level.update()
+        if self._level:
+            self._level.update()
 
     def _draw(self):
         """
@@ -332,7 +334,7 @@ class PhysicsSim:
         :return:
         """
         rb = RoadBuilder(self._space)
-        vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 100, 80)
+        vertices = rb.random_terrain_vertices_generator((0, constants.HEIGHT), 50, 240)
         body, static_segs = rb.build_road(vertices, 5)
         self._create_road(static_segs)
 

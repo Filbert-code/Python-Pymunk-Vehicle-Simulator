@@ -33,6 +33,7 @@ class Tank(Car):
         self.image = pg.image.load("images/Tank.png")
         self.image = pg.transform.scale(self.image, (441, 100))
         self.image_offset = (-20, 15)
+        self.wheel_image = pg.transform.scale(pg.image.load("images/tank_wheel.png"), (42, 42))
         self.barrel_image = pg.image.load("images/Tank Barrel.png")
         self.barrel_image = pg.transform.scale(self.barrel_image, (215, 20))
         self.track_image = pg.image.load("images/track.png")
