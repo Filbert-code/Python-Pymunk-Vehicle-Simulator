@@ -29,7 +29,7 @@ class PhysicsSim:
         self._clock = pg.time.Clock()
 
         # TEMP ATTRIBUTES
-        self.tank_position = 8050, constants.HEIGHT - 400
+        self.tank_position = 11400, constants.HEIGHT - 400
 
         # pymunk space
         self._space = pm.Space()
@@ -180,6 +180,11 @@ class PhysicsSim:
                         self._debug = False
                     else:
                         self._debug = True
+                elif event.type == pg.KEYDOWN and event.key == pg.K_n:
+                    if self._physics_steps_per_frame == 2:
+                        self._physics_steps_per_frame = 1
+                    else:
+                        self._physics_steps_per_frame = 2
                 # check if a Tank has been instantiated and fire a shot
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     print(pg.mouse.get_pos())
