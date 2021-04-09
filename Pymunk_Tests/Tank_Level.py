@@ -16,10 +16,12 @@ class Tank_Level(Level):
         self._car = car
         self._timer = pg.time.get_ticks()
         self._score = 0
-        self._targets = self._swinging_targets([(2400, 0), (3500, 50)])
+        self._targets = self._create_swinging_targets([(2400, 0), (3500, 50)])
         self._waterfall_trigger = False
-        self._waterfall_target = self._swinging_targets([(4800, 200)])
-        self._waterfall_door = None
+        # self._waterfall_target = self._create_swinging_targets([])
+        self._collapsible_door_target = None
+        self._waterfall_door_target = None
+        self._waterfall = True
 
     def road(self):
         h = constants.HEIGHT - 5
@@ -41,14 +43,15 @@ class Tank_Level(Level):
               ((3900, h), (5500, h)),
               ((3900, h), (3900, h-320)),
               ((last_v[0], last_v[1]), (last_v[0] + 400, h)),
-              ((last_v[0] + 600, h), (last_v[0] + 1000, h)),
-              ((last_v[0] + 1000, h), (last_v[0] + 1400, h - 100)),
+              ((last_v[0] + 600, h), (last_v[0] + 1000, h-100)),
+              ((last_v[0] + 1000, h-100), (last_v[0] + 1400, h - 100)),
               ((last_v[0] + 1400, h - 100), (last_v[0] + 2000, h - 200)),
               ((last_v[0] + 2000, h - 200), (last_v[0] + 2200, h - 200)),
               ((last_v[0] + 2200, h - 200), (last_v[0] + 2250, h-175)),
               ((last_v[0] + 2500, h - 25), (last_v[0] + 2550, h)),
+              # segment for waterfall
+              ((9000, 0), (9190, 200)),
               ]
-
 
         vs = vs + random_road_vs
         # returns Segments of the road
@@ -63,9 +66,11 @@ class Tank_Level(Level):
         #     self._c.create_poly(500, 1600, 690 - h * i, w, h)
         self._seesaw()
         self._ball_pit()
+        self._collapsible_door()
+        self._waterfall_door()
         # self._bunch_of_balls()
 
-    def _swinging_targets(self, positions):
+    def _create_swinging_targets(self, positions):
         """
         Takes a list of vertices; each corresponding to the location of a swinging circle.
         The circle is attached to a static segment. When hit, the circle will change color.
@@ -94,6 +99,19 @@ class Tank_Level(Level):
             targets.append((circle, body.position))
         return targets
 
+    def _check_target_collision(self, targets):
+        for i, target in enumerate(targets):
+            if target[0].body.position != target[1]:
+                for num, circle in enumerate(self._shapes_to_draw['circle']):
+                    if circle[0] == target[0]:
+                        self._shapes_to_draw['circle'].pop(num)
+                        targets.pop(i)
+                        print('hit')
+                        self._shapes_to_draw['circle'].append((circle[0], (255, 0, 0)))
+                        self._score += 1
+                        return True
+        return False
+
     def _seesaw(self):
         w, h = 600, 10
         seesaw, shape = self._c.create_poly(500, 1200, 620, w, h, elasticity=0, friction=1, rot=-math.pi/12)
@@ -101,31 +119,68 @@ class Tank_Level(Level):
         self._shapes_to_draw['rect'].append((shape, (150, 75, 150), w, h))
         self._space.add(constraint)
 
+    def _collapsible_door(self):
+        # create the door body and shape
+        h = constants.HEIGHT - 5
+        mass = 200
+        x_pos, y_pos = (4110 + 70, h-320)
+        w, h = 140, 10
+        door_shapes = []
+        for i in range(4):
+            body, door_shape = self._c.create_poly(mass, x_pos + 74*2*i, y_pos, w, h)
+            self._shapes_to_draw['rect'].append((door_shape, (0, 0, 0), w, h))
+            door_shapes.append(door_shape)
+        # add constraints
+        const1 = pm.constraints.PivotJoint(door_shapes[0].body, pm.Body(0.0, 1, pm.Body.STATIC), (4110, 395))
+        const2 = pm.constraints.PivotJoint(door_shapes[3].body, pm.Body(0.0, 1, pm.Body.STATIC), (4700, 395))
+        const3 = pm.constraints.PinJoint(door_shapes[0].body, door_shapes[1].body, (70, 0), (-70, 0))
+        const4 = pm.constraints.PinJoint(door_shapes[2].body, door_shapes[3].body, (70, 0), (-70, 0))
+        # const5 = pm.constraints.PinJoint(door_shapes[1].body, door_shapes[2].body, (70, 0), (-70, 0))
+        self._space.add(const1, const2, const3, const4)
+        h = constants.HEIGHT - 5
+        # create a static body to keep the door raised. Will be deleted to let the tank through
+        segments = super()._create_road([((4100, h-308), (4700, h-308))])
+        self._door_lock_segment = segments[0]
+        # target for player to shoot at to activate the door
+        self._collapsible_door_target = self._create_swinging_targets([(4800, 200)])
+        self._targets.append(self._collapsible_door_target[0])
+
     def _ball_pit(self):
-        mass, radius = 50, 10
+        mass, radius = 15, 6
         inertia = inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
         position = (3000, constants.HEIGHT - 50)
-        for i in range(100):
+        for i in range(250):
             body, ball_shape = self._create_ball(mass, inertia, position[0], position[1], radius, friction=0.9)
             self._shapes_to_draw['circle'].append((ball_shape, (0, 0, 200)))
 
-    def _bunch_of_balls(self):
-        radius = 7
-        mass = 10
+    def _spawn_balls(self):
+        mass, radius = 10, 6
         inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
         _curr_time = pg.time.get_ticks()
-        position = (4600 + randint(-10, 10), constants.HEIGHT - 500 + randint(-25, 25))
-        if _curr_time - self._timer > 25:
-            self._timer = _curr_time
-            # self._bunch_of_balls()
-            body, ball_shape = self._create_ball(mass, inertia, position[0], position[1], radius, friction=0.7)
-            self._shapes_to_draw['circle'].append((ball_shape, (0, 0, 200)))
+        position = (9150 + randint(-50, 50), -10 + randint(-25, 25))
+        body, ball_shape = self._create_ball(mass, inertia, position[0], position[1], radius, friction=0.7)
+        self._shapes_to_draw['circle'].append((ball_shape, (0, 0, 200)))
 
-    def _waterfall_update(self):
-        if self._waterfall_target[0][0].body.position != self._waterfall_target[0][1]:
-            pass
-        else:
-            self._bunch_of_balls()
+    def _waterfall_door(self):
+        mass = 1000
+        x_pos, y_pos = 9680, 470
+        w, h = 400, 10
+        rot = math.pi/2 + math.pi/16
+        body, door_shape = self._c.create_poly(mass, x_pos, y_pos, w, h, rot=rot)
+        self._shapes_to_draw['rect'].append((door_shape, (255, 0, 255), w+20, h))
+        const1 = pm.constraints.PivotJoint(body, pm.Body(0.0, 1, pm.Body.STATIC), (9640, 480+190))
+        const2 = pm.constraints.DampedSpring(body, pm.Body(0.0, 1, pm.Body.STATIC), (-380, 0), (9150, 720), 50, 300, 100)
+        const3 = pm.constraints.PinJoint(body, pm.Body(0.0, 1, pm.Body.STATIC), (-380, 0), (9800, 720))
+        self._space.add(const1, const2, const3)
+        self._waterfall_door_lock_segment = const3
+        self._waterfall_door_target = self._create_swinging_targets([(9550, 50)])
+        self._targets.append(self._waterfall_door_target[0])
+
+    # def _waterfall_update(self):
+    #     if self._waterfall_target[0][0].body.position != self._waterfall_target[0][1]:
+    #         pass
+    #     else:
+    #         self._bunch_of_balls()
 
     def draw(self):
         super().draw()
@@ -135,17 +190,15 @@ class Tank_Level(Level):
 
     def update(self):
         super().update()
-        # self._waterfall_update()
-        for i, target in enumerate(self._targets):
-            if target[0].body.position != target[1]:
-                for num, circle in enumerate(self._shapes_to_draw['circle']):
-                    if circle[0] == target[0]:
-                        self._shapes_to_draw['circle'].pop(num)
-                        self._targets.pop(i)
-                        print('hit')
-                        self._shapes_to_draw['circle'].append((circle[0], (255, 0, 0)))
-                        self._score += 1
-                        break
+        self._check_target_collision(self._targets)
+        # update state of the collapsable door
+        if self._check_target_collision(self._collapsible_door_target):
+            self._space.remove(self._door_lock_segment)
+        if self._check_target_collision(self._waterfall_door_target):
+            self._space.remove(self._waterfall_door_lock_segment)
+            self._waterfall = False
+        if self._waterfall:
+            self._spawn_balls()
 
     def build(self):
         self.road()

@@ -29,7 +29,7 @@ class PhysicsSim:
         self._clock = pg.time.Clock()
 
         # TEMP ATTRIBUTES
-        self.tank_position = 400, constants.HEIGHT - 100
+        self.tank_position = 8050, constants.HEIGHT - 400
 
         # pymunk space
         self._space = pm.Space()
