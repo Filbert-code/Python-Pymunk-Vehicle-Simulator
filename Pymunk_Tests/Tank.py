@@ -18,8 +18,8 @@ class Tank(Car):
         self.body = None
         self.wheels = []
         self.wheel_offset = (-20, 0)
-        self.wheel_turn_force = 50000
-        self.max_speed = 350
+        self.wheel_turn_force = 70000
+        self.max_speed = 300
         self.all_wheel_drive = True
         self._track_posx = x_pos - 100
         self._track_posy = y_pos

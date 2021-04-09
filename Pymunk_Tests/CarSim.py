@@ -23,10 +23,13 @@ class PhysicsSim:
         # initialize pygame
         pg.init()
         # create a surface to draw on
-        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT))
+        self._screen = pg.display.set_mode((constants.WIDTH, constants.HEIGHT), pg.RESIZABLE)
         # self._screen = pg.Surface((constants.WIDTH, constants.HEIGHT))
         # self._window = pg.display.set_mode((1280, constants.HEIGHT), pg.RESIZABLE)
         self._clock = pg.time.Clock()
+
+        # TEMP ATTRIBUTES
+        self.tank_position = 400, constants.HEIGHT - 100
 
         # pymunk space
         self._space = pm.Space()
@@ -56,7 +59,7 @@ class PhysicsSim:
         # self._car = Truck(self._space, self._screen, 200, 550)
         # self._car = Sportscar(self._space, self._screen, 200, 550)
         # self._car = Tank(self._space, self._screen, constants.WIDTH/4, constants.HEIGHT-50)
-        self._car = Tank(self._space, self._screen, 4000, constants.HEIGHT - 250)
+        self._car = Tank(self._space, self._screen, self.tank_position[0], self.tank_position[1])
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 

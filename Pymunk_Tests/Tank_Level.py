@@ -20,22 +20,40 @@ class Tank_Level(Level):
         self._waterfall_trigger = False
         self._waterfall_target = self._swinging_targets([(4800, 200)])
         self._waterfall_door = None
-        self._create_waterfall_door()
 
     def road(self):
         h = constants.HEIGHT - 5
-        vs = [((0, h), (2000, h)), ((2000, h), (2200, h - 100)),
-              ((2200, h - 100), (2400, h)),
-              ((2400, h), (2800, h - 150)),
-              ((2800, h - 150), (3400, h)),
-              ((3400, h), (3700, h - 100)),
-              ((3700, h - 100), (3900, h - 150)),
-              ((3900, h - 150), (4500, h)),
-              ((4700, h), (5500, h))
-              # ((0, constants.HEIGHT), (400, constants.HEIGHT-250))
+        # vertices of the rough terrain in the middle of the level
+        random_road_vs = self._rb.random_terrain_vertices_generator((5500, h), 60, 60)
+        # last vertex of the rough terrain road
+        last_v = random_road_vs[-1][1]
+        vs = [((0, h), (1500, h)), ((1500, h), (1800, h - 50)),
+              ((1800, h - 50), (2300, h-200)),
+              ((2300, h - 200), (2800, h-200)),
+              ((2800, h-200), (3000, h)),
+              ((3000, h), (3200, h-200)),
+              ((3200, h-200), (3500, h - 200)),
+              ((3500, h - 200), (3700, h - 250)),
+              ((3700, h - 250), (3900, h-320)),
+              ((3900, h-320), (4100, h-320)),
+              ((4700, h - 320), (5100, h-320)),
+              ((5100, h-320), (5100, 0)),
+              ((3900, h), (5500, h)),
+              ((3900, h), (3900, h-320)),
+              ((last_v[0], last_v[1]), (last_v[0] + 400, h)),
+              ((last_v[0] + 600, h), (last_v[0] + 1000, h)),
+              ((last_v[0] + 1000, h), (last_v[0] + 1400, h - 100)),
+              ((last_v[0] + 1400, h - 100), (last_v[0] + 2000, h - 200)),
+              ((last_v[0] + 2000, h - 200), (last_v[0] + 2200, h - 200)),
+              ((last_v[0] + 2200, h - 200), (last_v[0] + 2250, h-175)),
+              ((last_v[0] + 2500, h - 25), (last_v[0] + 2550, h)),
               ]
+
+
+        vs = vs + random_road_vs
         # returns Segments of the road
         segments = super()._create_road(vs)
+
         for seg in segments:
             self._shapes_to_draw['segment'].append((seg, (150, 75, 150)))
 
@@ -44,7 +62,8 @@ class Tank_Level(Level):
         # for i in range(10):
         #     self._c.create_poly(500, 1600, 690 - h * i, w, h)
         self._seesaw()
-        self._bunch_of_balls()
+        self._ball_pit()
+        # self._bunch_of_balls()
 
     def _swinging_targets(self, positions):
         """
@@ -82,28 +101,25 @@ class Tank_Level(Level):
         self._shapes_to_draw['rect'].append((shape, (150, 75, 150), w, h))
         self._space.add(constraint)
 
+    def _ball_pit(self):
+        mass, radius = 50, 10
+        inertia = inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
+        position = (3000, constants.HEIGHT - 50)
+        for i in range(100):
+            body, ball_shape = self._create_ball(mass, inertia, position[0], position[1], radius, friction=0.9)
+            self._shapes_to_draw['circle'].append((ball_shape, (0, 0, 200)))
+
     def _bunch_of_balls(self):
         radius = 7
         mass = 10
         inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
         _curr_time = pg.time.get_ticks()
+        position = (4600 + randint(-10, 10), constants.HEIGHT - 500 + randint(-25, 25))
         if _curr_time - self._timer > 25:
             self._timer = _curr_time
-            self._bunch_of_balls()
-        # for i in range(1):
-            body = pm.Body(mass, inertia, pm.Body.DYNAMIC)
-            body.position = (4600 + randint(-10, 10), constants.HEIGHT-500 + randint(-25, 25))
-            ball = pm.Circle(body, radius, (0, 0))
-            ball.friction = 0.7
-            self._space.add(body)
-            self._space.add(ball)
-            self._shapes_to_draw['circle'].append((ball, (0, 0, 200)))
-
-    def _create_waterfall_door(self):
-        # body, self._waterfall_door = self._c.create_poly(100, 4500, constants.HEIGHT-100, 200, 10, s_filter=3)
-        segments = super()._create_road([((4500, constants.HEIGHT), (4700, constants.HEIGHT))])
-        self._waterfall_door = segments[0]
-        self._shapes_to_draw['segment'].append((segments[0], (140, 65, 140)))
+            # self._bunch_of_balls()
+            body, ball_shape = self._create_ball(mass, inertia, position[0], position[1], radius, friction=0.7)
+            self._shapes_to_draw['circle'].append((ball_shape, (0, 0, 200)))
 
     def _waterfall_update(self):
         if self._waterfall_target[0][0].body.position != self._waterfall_target[0][1]:
@@ -119,7 +135,7 @@ class Tank_Level(Level):
 
     def update(self):
         super().update()
-        self._waterfall_update()
+        # self._waterfall_update()
         for i, target in enumerate(self._targets):
             if target[0].body.position != target[1]:
                 for num, circle in enumerate(self._shapes_to_draw['circle']):

@@ -20,6 +20,16 @@ class Level:
         _road_body, segments = self._rb.build_road(vs, 5)
         return segments
 
+    def _create_ball(self, _mass, _inertia, _x_pos, _y_pos, _radius, friction=0.9, elasticity=0.3):
+        body = pm.Body(_mass, _inertia, pm.Body.DYNAMIC)
+        body.position = (_x_pos, _y_pos)
+        shape = pm.Circle(body, _radius, (0, 0))
+        shape.friction = friction
+        shape.elasticity = elasticity
+        self._space.add(body)
+        self._space.add(shape)
+        return body, shape
+
     def draw(self):
         # draw all rectangle shapes
         for shape_list in self._shapes_to_draw['rect']:
