@@ -1,6 +1,6 @@
 import os
 
-WIDTH, HEIGHT = 3000, 720
+WIDTH, HEIGHT = 1280, 720
 
 BLACK = 0, 0, 0
 BLUE = 0, 150, 0

@@ -29,7 +29,7 @@ class PhysicsSim:
         self._clock = pg.time.Clock()
 
         # TEMP ATTRIBUTES
-        self.tank_position = 11400, constants.HEIGHT - 400
+        self.tank_position = 400, constants.HEIGHT - 30
 
         # pymunk space
         self._space = pm.Space()
@@ -71,7 +71,7 @@ class PhysicsSim:
         self._create_tank_obstacle_course()
 
         # debug key
-        self._debug = False
+        self._debug = True
 
         # menu
         self._btn_clicked = None  # array to keep track of which arrow button is pressed

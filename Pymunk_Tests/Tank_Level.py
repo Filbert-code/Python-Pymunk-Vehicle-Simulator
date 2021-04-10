@@ -191,11 +191,11 @@ class Tank_Level(Level):
         self._screen.blit(score, (20, 20))
 
     def _catapult(self):
-        self._catapult_target = self._create_swinging_targets([(12900, 300)])
+        self._catapult_target = self._create_swinging_targets([(12700, 500)])
         self._targets.append(self._catapult_target[0])
 
     def _create_giant_ball(self):
-        giant_ball = self._create_swinging_targets([(16500, 0)], mass=100000, radius=300, distance=500)
+        giant_ball = self._create_swinging_targets([(16200, 0)], mass=100000, radius=300, distance=500)
         self._targets.append(giant_ball[0])
 
     def update(self):

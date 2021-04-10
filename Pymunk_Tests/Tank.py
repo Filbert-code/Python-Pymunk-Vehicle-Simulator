@@ -65,7 +65,7 @@ class Tank(Car):
         turret_wheel_const1 = pm.constraints.PinJoint(tank_body, self.turret_wheel, (0, -20), (0, 0))
         turret_wheel_const2 = pm.constraints.PinJoint(tank_body, self.turret_wheel, (0, 20), (0, 0))
         # tank turret stuff
-        self.turret, self.turret_shape = self.create_poly(3000, self._track_posx + 310, self._track_posy-80, 140, 13, elasticity=0)
+        self.turret, self.turret_shape = self.create_poly(3000, self._track_posx + 330, self._track_posy-80, 200, 13, elasticity=0)
         turret_const1 = pm.constraints.PivotJoint(self.turret_wheel, self.turret, (self._track_posx + 208, self._track_posy-80))
         turret_const2 = pm.constraints.GearJoint(self.turret_wheel, self.turret, 0.0, 300.0)
         self._space.add(turret_wheel_const1, turret_wheel_const2, turret_const1, turret_const2)
@@ -74,6 +74,7 @@ class Tank(Car):
         track_bodies_bottom = []
         for num in range(22):
             body, shape = self.create_poly(mass, self._track_posx-25 + num*14, self._track_posy, w, h, elasticity=0)
+            shape.filter = pm.ShapeFilter(categories=1)
             track_bodies_bottom.append(body)
             self._tracks.append(body)
         end_point_1 = self.create_track_constraints(track_bodies_bottom, offset=(-25, 0))
@@ -81,6 +82,7 @@ class Tank(Car):
         for num in range(26):
             body, shape = self.create_poly(mass, self._track_posx-50 + num * 14, self._track_posy-40, w, h, elasticity=0)
             track_bodies_top.append(body)
+            shape.filter = pm.ShapeFilter(categories=1)
             self._tracks.append(body)
         end_point_2 = self.create_track_constraints(track_bodies_top, offset=(-50, -40))
 
