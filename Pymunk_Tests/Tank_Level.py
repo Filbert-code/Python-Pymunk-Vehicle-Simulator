@@ -16,7 +16,7 @@ class Tank_Level(Level):
         self._car = car
         self._timer = pg.time.get_ticks()
         self._score = 0
-        self._targets = self._create_swinging_targets([(2400, 0), (3500, 50)])
+        self._targets = self._create_swinging_targets([(3000, 0), (1000, 250)])
         self._waterfall_trigger = False
         # self._waterfall_target = self._create_swinging_targets([])
         self._collapsible_door_target = None
@@ -62,7 +62,7 @@ class Tank_Level(Level):
         segments = super()._create_road(vs)
 
         for seg in segments:
-            self._shapes_to_draw['segment'].append((seg, (150, 75, 150)))
+            self._shapes_to_draw['segment'].append((seg, (0, 0, 0)))
 
     def _obstacle_01(self):
         # w, h = 30, 30
@@ -154,10 +154,10 @@ class Tank_Level(Level):
         self._targets.append(self._collapsible_door_target[0])
 
     def _ball_pit(self):
-        mass, radius = 15, 6
+        mass, radius = 15, 10
         inertia = inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
         position = (3000, constants.HEIGHT - 50)
-        for i in range(250):
+        for i in range(75):
             body, ball_shape = self._create_ball(mass, inertia, position[0], position[1], radius, friction=0.9)
             self._shapes_to_draw['circle'].append((ball_shape, (0, 0, 200)))
 
@@ -191,11 +191,11 @@ class Tank_Level(Level):
         self._screen.blit(score, (20, 20))
 
     def _catapult(self):
-        self._catapult_target = self._create_swinging_targets([(12700, 500)])
+        self._catapult_target = self._create_swinging_targets([(12750, 200)])
         self._targets.append(self._catapult_target[0])
 
     def _create_giant_ball(self):
-        giant_ball = self._create_swinging_targets([(16200, 0)], mass=100000, radius=300, distance=500)
+        giant_ball = self._create_swinging_targets([(16000, 0)], mass=100000, radius=300, distance=500)
         self._targets.append(giant_ball[0])
 
     def update(self):
@@ -210,7 +210,7 @@ class Tank_Level(Level):
         if self._waterfall:
             self._spawn_balls()
         if self._check_target_collision(self._catapult_target):
-            body, shape = self._c.create_poly(600000, 12270, 0, 20, 20)
+            body, shape = self._c.create_poly(600000, 12285, 0, 20, 20)
             self._space.remove(self._catapult_target_bodies[0], self._catapult_target_bodies[1])
             self._shapes_to_draw['segment'].pop(-1)
             self._shapes_to_draw['circle'].pop(-1)

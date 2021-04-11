@@ -69,6 +69,14 @@ class Tank(Car):
         turret_const1 = pm.constraints.PivotJoint(self.turret_wheel, self.turret, (self._track_posx + 208, self._track_posy-80))
         turret_const2 = pm.constraints.GearJoint(self.turret_wheel, self.turret, 0.0, 300.0)
         self._space.add(turret_wheel_const1, turret_wheel_const2, turret_const1, turret_const2)
+        # front bumper
+        w3, h3 = 10, 30
+        vs = [(-w3 / 2, -h3 / 2), (w3 / 2, -h3 / 2), (w3 / 2, h3 / 2), (-w3 / 2, h3 / 2)]
+        new_vs = []
+        for v in vs:
+            new_vs.append((v[0] + 195, v[1] + 50))
+        bumper_shape = pm.Poly(self.body, new_vs)
+        self._space.add(bumper_shape)
 
         # mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9
         track_bodies_bottom = []

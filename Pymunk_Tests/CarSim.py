@@ -27,9 +27,10 @@ class PhysicsSim:
         # self._screen = pg.Surface((constants.WIDTH, constants.HEIGHT))
         # self._window = pg.display.set_mode((1280, constants.HEIGHT), pg.RESIZABLE)
         self._clock = pg.time.Clock()
+        self._background_img = pg.image.load("images/background.png")
 
         # TEMP ATTRIBUTES
-        self.tank_position = 400, constants.HEIGHT - 30
+        self.tank_position = 3200, constants.HEIGHT - 30
 
         # pymunk space
         self._space = pm.Space()
@@ -57,21 +58,21 @@ class PhysicsSim:
 
         # SPAWN STUFF
         # self._car = Truck(self._space, self._screen, 200, 550)
-        # self._car = Sportscar(self._space, self._screen, 200, 550)
+        self._car = Sportscar(self._space, self._screen, 200, 550)
         # self._car = Tank(self._space, self._screen, constants.WIDTH/4, constants.HEIGHT-50)
-        self._car = Tank(self._space, self._screen, self.tank_position[0], self.tank_position[1])
+        # self._car = Tank(self._space, self._screen, self.tank_position[0], self.tank_position[1])
         self._car.build()
         self._active_car = 0  # index of active car: sportscar=0, truck=1
 
         # declare obstacle course
         # self._obc = None
-        # self._create_obstacle_course()
-        # self._active_level = 0  # index of active level: obstacle course=0, mountain=1
-        self._level = None
-        self._create_tank_obstacle_course()
+        self._create_obstacle_course()
+        self._active_level = 0  # index of active level: obstacle course=0, mountain=1
+        # self._level = None
+        # self._create_tank_obstacle_course()
 
         # debug key
-        self._debug = True
+        self._debug = False
 
         # menu
         self._btn_clicked = None  # array to keep track of which arrow button is pressed
@@ -135,6 +136,7 @@ class PhysicsSim:
         draws pygame objects/shapes
         :return:
         """
+        # self._moving_background()
         if self._debug:
             self._space.debug_draw(self._draw_options)
         else:
@@ -143,6 +145,7 @@ class PhysicsSim:
             self._car.draw()
             if self._level:
                 self._level.draw()
+
         # prototyping a mini map
         # self._window.blit(pg.transform.chop(self._screen, rect), (0, 0))
         # self._window.blit(pg.transform.scale(self._screen, (711, 200)), (320, 0))
@@ -205,7 +208,7 @@ class PhysicsSim:
         Clears the screen.
         :return: None
         """
-        self._screen.fill(pg.Color("turquoise"))
+        self._screen.fill((163, 229, 255))
 
     def _menu_button_event(self):
         self._menu.mouse_button_down = 1
@@ -234,6 +237,12 @@ class PhysicsSim:
                 # an array of zeros and a one, the one integer indicates which button is pressed
                 self._btn_clicked = [1 if i == btn_num else 0 for i in range(6)]
                 break
+
+    def _moving_background(self):
+        if self._car.body.position[0] > 400:
+            self._screen.blit(self._background_img, (-self._car.body.position[0]-400, 0))
+        else:
+            self._screen.blit(self._background_img, (0, 0))
 
     def _apply_button_pressed(self):
         """
