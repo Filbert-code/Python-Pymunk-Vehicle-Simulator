@@ -1,0 +1,8 @@
+import os
+
+WIDTH, HEIGHT = 1280, 720
+
+BLACK = 0, 0, 0
+BLUE = 0, 150, 0
+BACKGROUND_COLOR = 97, 11, 34
+
