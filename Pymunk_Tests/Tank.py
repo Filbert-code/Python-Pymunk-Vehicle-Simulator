@@ -77,6 +77,16 @@ class Tank(Car):
             new_vs.append((v[0] + 195, v[1] + 50))
         bumper_shape = pm.Poly(self.body, new_vs)
         self._space.add(bumper_shape)
+        w3, h3 = 20, 10
+        vs = [(-w3 / 2, -h3 / 2), (w3 / 2, -h3 / 2), (w3 / 2, h3 / 2), (-w3 / 2, h3 / 2)]
+        new_vs = []
+        for v in vs:
+            new_vs.append((v[0] + 190, v[1] + 60))
+        bumper_shape2 = pm.Poly(self.body, new_vs)
+        self._space.add(bumper_shape2)
+        shape = pm.Segment(self.body, (50, 30), (190, 35), 5)
+        self._space.add(shape)
+
 
         # mass, x_pos, y_pos, w, h, vs=0, elasticity=0.3, friction=0.9
         track_bodies_bottom = []

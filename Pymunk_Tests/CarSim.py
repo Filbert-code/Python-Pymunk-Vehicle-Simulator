@@ -189,7 +189,8 @@ class PhysicsSim:
                     else:
                         self._physics_steps_per_frame = 2
                 # check if a Tank has been instantiated and fire a shot
-                elif event.type == pg.MOUSEBUTTONDOWN:
+                # elif event.type == pg.MOUSEBUTTONDOWN:
+                elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                     print(pg.mouse.get_pos())
                     if isinstance(Tank, type):
                         self._car.shoot_projectile()

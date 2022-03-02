@@ -154,10 +154,10 @@ class Tank_Level(Level):
         self._targets.append(self._collapsible_door_target[0])
 
     def _ball_pit(self):
-        mass, radius = 15, 10
+        mass, radius = 15, 7
         inertia = inertia = pm.moment_for_circle(mass, 0, radius, (0, 0))
         position = (3000, constants.HEIGHT - 50)
-        for i in range(75):
+        for i in range(200):
             body, ball_shape = self._create_ball(mass, inertia, position[0], position[1], radius, friction=0.9)
             self._shapes_to_draw['circle'].append((ball_shape, (0, 0, 200)))
 
