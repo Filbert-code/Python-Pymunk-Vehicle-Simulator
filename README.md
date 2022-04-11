@@ -1,4 +1,6 @@
 # Python/Pymunk Vehicle Simulator
 
-Utilizing the Pymunk physics-engine library to create a 2D vehicle simulation with realistic physics.
-Using the PyGame game-creation library for controlling computer graphics.
+A 2D vehicle simulation that features a tank, sportscar, truck, and three different sandbox maps. 
+
+Uses the Pymunk physics-engine library to create realistic movement and collision physics.
+Uses the PyGame game-creation library for controlling computer graphics.
